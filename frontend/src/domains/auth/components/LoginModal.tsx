@@ -1,5 +1,5 @@
 import Modal from "../../../components/Modal";
-import { login } from "../../auth/service";
+import { login } from "../../auth/service.ts";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 

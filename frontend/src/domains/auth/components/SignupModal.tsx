@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Modal from "../../../components/Modal";
-import { register, login } from "../../auth/service";
+import { register, login } from "../../auth/service.ts";
 import { useNavigate } from "react-router-dom";
 import { Alert, AlertTitle } from "@mui/material";
 
