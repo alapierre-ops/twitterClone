@@ -6,6 +6,22 @@ export const createPost = async (req, res) => {
   res.status(201).json(post);
 };
 
+export const addLike = async (req, res) => {
+  const { postId, userId } = req.params;
+  const post = await Post.findById(postId);
+  post.likes.push(userId);
+  await post.save();
+  res.status(200).json(post);
+};
+
+export const removeLike = async (req, res) => {
+  const { postId, userId } = req.params;
+  const post = await Post.findById(postId);
+  post.likes = post.likes.filter(like => like.toString() !== userId.toString());
+  await post.save();
+  res.status(200).json(post);
+};
+
 export const getPosts = async (req, res) => {
   const posts = await Post.find().populate('author', 'username').sort({ createdAt: -1 });
   res.status(200).json(posts);

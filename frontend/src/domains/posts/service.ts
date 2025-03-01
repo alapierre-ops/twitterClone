@@ -20,6 +20,24 @@ export const getPosts = async (): Promise<PostResponse[]> => {
   }
 };
 
+export const addLike = async (postId: string, userId: string): Promise<PostResponse> => {
+  try {
+    const response = await axiosInstance.post<PostResponse>(`/posts/${postId}/like/${userId}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const removeLike = async (postId: string, userId: string): Promise<PostResponse> => {
+  try {
+    const response = await axiosInstance.post<PostResponse>(`/posts/${postId}/unlike/${userId}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const getPostById = async (id: string): Promise<PostResponse> => {
   try {
     const response = await axiosInstance.get<PostResponse>(`/posts/${id}`);
@@ -29,7 +47,7 @@ export const getPostById = async (id: string): Promise<PostResponse> => {
   }
 };
 
-export const updatePost = async (id: string, content: string): Promise<PostResponse> => {
+export const modifyPost = async (id: string, content: string): Promise<PostResponse> => {
   try {
     const response = await axiosInstance.put<PostResponse>(`/posts/${id}`, { content });
     return response.data;
@@ -38,7 +56,7 @@ export const updatePost = async (id: string, content: string): Promise<PostRespo
   }
 };
 
-export const deletePost = async (id: string): Promise<void> => {
+export const removePost = async (id: string): Promise<void> => {
   try {
     await axiosInstance.delete(`/posts/${id}`);
   } catch (error) {
