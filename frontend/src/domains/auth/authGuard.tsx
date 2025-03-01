@@ -1,30 +1,45 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axiosInstance from "../../api/axiosConfig";
+import { useAppDispatch } from "../../app/hooks";
+import { setUser } from "./slice";
 
 const authGuard = (Component: any) => {
   const auth = (props: any) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const navigate = useNavigate();
+    const dispatch = useAppDispatch();
     
     useEffect(() => {
-      let token: string | null = null;
-      if(localStorage.getItem("token")){
-        token = localStorage.getItem("token");
-      }
-      else if(sessionStorage.getItem("token")){
-        token = sessionStorage.getItem("token");
-      }
-      if (!token) {
-        navigate("/login");
-        return;
-      }
-      else{
-        setIsAuthenticated(true);
-      }
-    }, []);
+      const verifyAuth = async () => {
+        let token = localStorage.getItem("token") || sessionStorage.getItem("token");
+        if (!token) {
+          navigate("/login");
+          return;
+        }
 
-    return isAuthenticated ? <Component {...props} /> : null
-  }
+        try {
+          const response = await axiosInstance.get("/users/verify");
+          if (response.data.isValid) {
+            setIsAuthenticated(true);
+            dispatch(setUser({ userId: response.data.userId, username: response.data.username }));
+          } else {
+            localStorage.removeItem("token");
+            sessionStorage.removeItem("token");
+            navigate("/login");
+          }
+        } catch (error) {
+          localStorage.removeItem("token");
+          sessionStorage.removeItem("token");
+          navigate("/login");
+        }
+      };
+
+      verifyAuth();
+    }, [navigate, dispatch]);
+
+    return isAuthenticated ? <Component {...props} /> : null;
+  };
 
   return auth;
 };

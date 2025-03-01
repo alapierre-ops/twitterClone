@@ -3,6 +3,8 @@ import Modal from "../../../components/Modal";
 import { register, login } from "../../auth/service.ts";
 import { useNavigate } from "react-router-dom";
 import { Alert, AlertTitle } from "@mui/material";
+import { useAppDispatch } from "../../../app/hooks";
+import { loginUser, registerUser } from "../slice.ts";
 
 interface SignupModalProps {
   isOpen: boolean;
@@ -15,14 +17,15 @@ const SignupModal = ({ isOpen, onClose }: SignupModalProps) => {
   const [password, setPassword] = useState("");
   const [secondPassword, setSecondPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   const handleSignup = async () => {
     try {
       setError(null);
-      await register(username, email, password, secondPassword);
-      const response = await login(email, password);
-      sessionStorage.setItem("token", response.token);
+      await dispatch(registerUser({ username, email, password, secondPassword }));
+      await dispatch(loginUser({ email, password, remember: false }));
       onClose();
       navigate("/");
     } catch (error: any) {

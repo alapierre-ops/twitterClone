@@ -1,11 +1,5 @@
 import axiosInstance from "../../api/axiosConfig.ts";
-
-interface AuthResponse {
-  id: string;
-  username: string;
-  email: string;
-  token: string;
-}
+import { AuthResponse } from "./types.ts";
 
 export const login = async (email: string, password: string): Promise<AuthResponse> => {
   try {

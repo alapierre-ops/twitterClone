@@ -1,6 +1,7 @@
 import User from "../models/user.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { verifyToken } from "../middlewares/authMiddleware.js";
 
 export const registerUser = async (req, res) => {
   const { username, email, password } = req.body;
@@ -26,6 +27,25 @@ export const loginUser = async (req, res) => {
 
   const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
   res.json({ token, userId: user._id });
+};
+
+export const verifyAuth = async (req, res) => {
+  const token = req.headers.authorization;
+  if (!token) {
+    return res.status(401).json({ isValid: false });
+  }
+
+  const decoded = verifyToken(token);
+  if (!decoded) {
+    return res.status(401).json({ isValid: false });
+  }
+
+  const user = await User.findById(decoded.userId).select("-password");
+  if (!user) {
+    return res.status(401).json({ isValid: false });
+  }
+
+  res.json({ isValid: true, userId: user._id, username: user.username });
 };
 
 export const getUserProfile = async (req, res) => {
