@@ -7,6 +7,8 @@ import { PostItemProps } from "../types";
 const PostItem = ({ post, userId, onSuccess, onError }: PostItemProps) => {
   const dispatch = useAppDispatch();
   const [anchorElement, setAnchorElement] = useState<null | HTMLElement>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedContent, setEditedContent] = useState(post.content);
   const isLiked = userId ? post.likes.includes(userId) : false;
   const isAuthor = userId === post.author._id;
 
@@ -35,9 +37,10 @@ const PostItem = ({ post, userId, onSuccess, onError }: PostItemProps) => {
 
   const handleEdit = async () => {
     try {
-      await dispatch(updatePost({ postId: post.id, content: post.content }));
+      await dispatch(updatePost({ postId: post.id, content: editedContent }));
       onSuccess("Post updated successfully!");
       handleMenuClose();
+      setIsEditing(false);
     } catch (error) {
       console.log(error);
       onError("Failed to update post. Please try again.");
@@ -83,15 +86,31 @@ const PostItem = ({ post, userId, onSuccess, onError }: PostItemProps) => {
                   open={Boolean(anchorElement)}
                   onClose={handleMenuClose}
                 >
-                  <MenuItem onClick={handleEdit}>Edit Post</MenuItem>
+                  <MenuItem onClick={() => {setIsEditing(true); handleMenuClose();}}>Edit Post</MenuItem>
                   <MenuItem onClick={handleDelete}>Delete Post</MenuItem>
                 </Menu>
               </div>
             )}
           </div>
-          <p className="mt-1">{post.content}</p>
+          {isEditing ? (
+            <div className="mt-2 flex items-center space-x-2 w-9/10">
+            <textarea
+              value={editedContent}
+              onChange={(e) => setEditedContent(e.target.value)}
+              className="w-full p-2 border rounded-md"
+            >
+            </textarea>
+            <button onClick={handleEdit}>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+              </svg>
+            </button>
+            </div>
+          ) : (
+            <p className="mt-1">{post.content}</p>
+          )}
           <div className="mt-2 flex items-center space-x-6 text-gray-500">
-            <button 
+            <button
               onClick={handleLike}
               className="flex items-center space-x-2 hover:text-blue-500 transition duration-150 ease-in-out"
             >

@@ -6,6 +6,7 @@ const initialState: PostState = {
   posts: [],
   isLoading: false,
   error: null,
+  activeTab: 'recent',
 };
 
 export const fetchPosts = createAsyncThunk(
@@ -65,6 +66,14 @@ export const updatePost = createAsyncThunk(
   }) => {
     const response = await modifyPost(postId, content);
     return response;
+  }
+);
+
+export const handleTabChange = createAsyncThunk(
+  'posts/handleTabChange',
+  async (tab: string) => {
+    const activeTab = tab;
+    return activeTab;
   }
 );
 
@@ -150,6 +159,17 @@ const postSlice = createSlice({
       .addCase(deletePost.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message || 'Failed to delete post';
+      })
+      .addCase(handleTabChange.fulfilled, (state, action) => {
+        state.activeTab = action.payload;
+        fetchPosts();
+      })
+      .addCase(handleTabChange.rejected, (state, action) => {
+        state.error = action.error.message || 'Failed to change tab';
+      })
+      .addCase(handleTabChange.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
       });
   },
 });
