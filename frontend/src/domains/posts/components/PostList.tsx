@@ -3,10 +3,12 @@ import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import { fetchPosts, fetchPostsByUserId } from "../slice";
 import PostItem from "./PostItem";
 import { PostListProps } from "../types";
+import Loading from "../../../components/Loading";
 
 const PostList = ({ onSuccess, onError }: PostListProps) => {
   const dispatch = useAppDispatch();
   const posts = useAppSelector((state) => state.posts.posts);
+  const isLoading = useAppSelector((state) => state.posts.isLoading);
   const userId = useAppSelector((state) => state.auth.userId);
   const activeTab = useAppSelector((state) => state.posts.activeTab);
 
@@ -28,18 +30,30 @@ const PostList = ({ onSuccess, onError }: PostListProps) => {
     loadPosts();
   }, [activeTab, dispatch]);
 
+  if (isLoading) {
+    return <Loading />;
+  }
+
   return (
-    <ul className="divide-y divide-gray-200">
-      {posts.map((post) => (
-        <PostItem
-          key={post.id}
-          post={post}
-          userId={userId}
-          onSuccess={onSuccess}
-          onError={onError}
-        />
-      ))}
-    </ul>
+    <>
+      {posts.length === 0 ? (
+        <div className="text-center py-8 text-gray-500">
+          Nothing to see here... Yet.
+        </div>
+      ) : (
+        <ul className="divide-y divide-gray-200">
+          {posts.map((post) => (
+            <PostItem
+              key={post.id}
+              post={post}
+              userId={userId}
+              onSuccess={onSuccess}
+              onError={onError}
+            />
+          ))}
+        </ul>
+      )}
+    </>
   );
 };
 
