@@ -10,10 +10,14 @@ export const createPost = async (content: string, author: string): Promise<PostR
   }
 };
 
-export const getPosts = async (): Promise<PostResponse[]> => {
+export const getPosts = async (activeTab: string): Promise<PostResponse[]> => {
   try {
     const response = await axiosInstance.get<PostResponse[]>("/posts");
-    console.log(response.data)
+    if (activeTab === "trending") {
+      const trendingPosts = response.data.sort((a, b) => b.likes.length - a.likes.length);
+      const recentPosts = trendingPosts.filter((post) => new Date(post.createdAt) > new Date(Date.now() - 1000 * 60 * 60 * 24 * 3));
+      return recentPosts;
+    }
     return response.data;
   } catch (error) {
     throw error;
@@ -41,6 +45,15 @@ export const removeLike = async (postId: string, userId: string): Promise<PostRe
 export const getPostById = async (id: string): Promise<PostResponse> => {
   try {
     const response = await axiosInstance.get<PostResponse>(`/posts/${id}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getPostsByUserId = async (userId: string): Promise<PostResponse[]> => {
+  try {
+    const response = await axiosInstance.get<PostResponse[]>(`/posts/user/${userId}`);
     return response.data;
   } catch (error) {
     throw error;

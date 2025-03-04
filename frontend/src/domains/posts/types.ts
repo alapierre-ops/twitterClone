@@ -24,6 +24,7 @@ export interface PostState {
   posts: PostResponse[];
   isLoading: boolean;
   error: string | null;
+  activeTab: string;
 }
 
 export interface PostListProps {

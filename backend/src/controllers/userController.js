@@ -49,7 +49,9 @@ export const verifyAuth = async (req, res) => {
 };
 
 export const getUserProfile = async (req, res) => {
-  const user = await User.findById(req.user.userId).select("-password");
+  const { id } = req.params;
+  console.log("getUserProfile id :", id)
+  const user = await User.findById(id).select("-password");
   if (!user) return res.status(404).json({ message: "No account found." });
   res.json(user);
 };

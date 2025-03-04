@@ -1,17 +1,26 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { PostState } from './types.ts';
-import { getPosts, createPost, addLike, removeLike, removePost, modifyPost } from './service.ts';
+import { getPosts, createPost, addLike, removeLike, removePost, modifyPost, getPostsByUserId } from './service.ts';
 
 const initialState: PostState = {
   posts: [],
   isLoading: false,
   error: null,
+  activeTab: 'recent',
 };
 
 export const fetchPosts = createAsyncThunk(
   'posts/fetchPosts',
-  async () => {
-    const response = await getPosts();
+  async (activeTab: string) => {
+    const response = await getPosts(activeTab);
+    return response;
+  }
+);
+
+export const fetchPostsByUserId = createAsyncThunk(
+  'posts/fetchPostsByUserId',
+  async (userId: string) => {
+    const response = await getPostsByUserId(userId);
     return response;
   }
 );
@@ -65,6 +74,20 @@ export const updatePost = createAsyncThunk(
   }) => {
     const response = await modifyPost(postId, content);
     return response;
+  }
+);
+
+export const handleTabChange = createAsyncThunk(
+  'posts/handleTabChange',
+  async (tab: string, { dispatch }) => {
+    const profileTabParams = tab.split(':');
+    if(profileTabParams[0] !== 'profile'){
+      await dispatch(fetchPosts(tab));
+    }
+    else{
+      await dispatch(fetchPostsByUserId(profileTabParams[1]))
+    }
+    return tab;
   }
 );
 
@@ -150,6 +173,28 @@ const postSlice = createSlice({
       .addCase(deletePost.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message || 'Failed to delete post';
+      })
+      .addCase(handleTabChange.fulfilled, (state, action) => {
+        state.activeTab = action.payload;
+      })
+      .addCase(handleTabChange.rejected, (state, action) => {
+        state.error = action.error.message || 'Failed to change tab';
+      })
+      .addCase(handleTabChange.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchPostsByUserId.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchPostsByUserId.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.posts = action.payload;
+      })
+      .addCase(fetchPostsByUserId.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.error.message || 'Failed to fetch posts by user id';
       });
   },
 });

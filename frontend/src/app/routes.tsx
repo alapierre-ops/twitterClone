@@ -6,7 +6,7 @@ import { RouteItem } from '../App';
 const routes: RouteItem[] = [
   { path: '/', element: <Index /> },
   { path: '/login', element: <Login /> },
-  { path: '/profile', element: <Profile /> },
+  { path: '/profile/:id', element: <Profile /> },
 ];
 
 export default routes; 

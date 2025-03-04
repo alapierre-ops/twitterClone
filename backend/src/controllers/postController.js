@@ -33,6 +33,12 @@ export const getPostById = async (req, res) => {
   res.status(200).json(post);
 };
 
+export const getPostsByUserId = async (req, res) => {
+  const { userId } = req.params;
+  const posts = await Post.find({ author: userId }).populate('author', 'username');
+  res.status(200).json(posts);
+};
+
 export const updatePost = async (req, res) => {
   const { id } = req.params;
   const { content } = req.body;
@@ -60,10 +66,4 @@ export const unlikePost = async (req, res) => {
   post.likes = post.likes.filter(like => like.toString() !== req.user._id.toString());
   await post.save();
   res.status(200).json(post);
-};
-
-export const getPostsByUserId = async (req, res) => {
-  const { userId } = req.params;
-  const posts = await Post.find({ author: userId }).populate('author', 'username');
-  res.status(200).json(posts);
 };
