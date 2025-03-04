@@ -3,7 +3,7 @@ import authGuard from "../domains/auth/authGuard";
 import { useAppSelector, useAppDispatch } from "../app/hooks";
 import { useEffect, useState } from "react";
 import PostList from "../domains/posts/components/PostList";
-import { getUserById } from "../domains/users/slice";
+import { getUserByIdThunk } from "../domains/users/slice";
 import Stimulation from "../components/Stimulation";
 import { handleTabChange } from "../domains/posts/slice";
 import Loading from "../components/Loading";
@@ -21,7 +21,7 @@ function Profile() {
   const getUser = async () => {
     if(!id) return;
     try {
-      await dispatch(getUserById(id));
+      await dispatch(getUserByIdThunk(id));
     } catch (error) {
       setError("Failed to load user profile");
     }

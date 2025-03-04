@@ -52,3 +52,25 @@ export const getUserProfile = async (req, res) => {
   if (!user) return res.status(404).json({ message: "No account found." });
   res.json(user);
 };
+
+export const followUser = async (req, res) => {
+  const { id, userId } = req.params;
+  const user = await User.findById(id);
+  const userToFollow = await User.findById(userId);
+
+  if(!user || !userToFollow) return res.status(404).json({ message: "No account found." });
+
+  const isFollowing = user.following.includes(userToFollow._id);
+
+  if(isFollowing){
+    user.following = user.following.filter(id => id.toString() !== userToFollow._id.toString());
+    userToFollow.followers = userToFollow.followers.filter(id => id.toString() !== user._id.toString());
+  }
+  else{
+    user.following.push(userToFollow._id);
+    userToFollow.followers.push(user._id);
+  }
+  await user.save();
+  await userToFollow.save();
+  res.json(userToFollow);
+};

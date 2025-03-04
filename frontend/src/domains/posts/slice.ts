@@ -21,7 +21,6 @@ export const fetchPostsByUserId = createAsyncThunk(
   'posts/fetchPostsByUserId',
   async (userId: string) => {
     const response = await getPostsByUserId(userId);
-    console.log(response);
     return response;
   }
 );

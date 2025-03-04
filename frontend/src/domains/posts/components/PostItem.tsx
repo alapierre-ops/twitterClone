@@ -64,7 +64,8 @@ const PostItem = ({ post, userId, onSuccess, onError }: PostItemProps) => {
     <li className="py-4 px-4 hover:bg-gray-900 cursor-pointer transition duration-150 ease-in-out">
       <div className="flex space-x-3">
         <div className="flex-shrink-0">
-          <img src={post.author.profilePicture} className="w-12 h-12 rounded-full bg-gray-300" />
+          <img src={post.author.profilePicture || "https://mastertondental.co.nz/wp-content/uploads/2022/12/team-profile-placeholder.jpg"}
+           className="w-12 h-12 rounded-full bg-gray-300" />
         </div>
         <div className="flex-1">
           <div className="flex items-center justify-between">
