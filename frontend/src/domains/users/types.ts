@@ -11,4 +11,5 @@ export interface UserResponse {
   followers: string[];
   following: string[];
   createdAt: string;
+  profilePicture: string;
 }

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import { handleTabChange } from "../slice";
 
@@ -8,6 +9,10 @@ const PostTab = () => {
   const handleClick = (tab: string) => {
     dispatch(handleTabChange(tab));
   };
+
+  useEffect(() => {
+    console.log(activeTab);
+  }, [activeTab]);
 
   return (
     <div className="flex border-b border-gray-700 mb-6">

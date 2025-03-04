@@ -1,14 +1,16 @@
 import authGuard from "../domains/auth/authGuard";
-import { useAppSelector } from "../app/hooks";
-import { useState } from "react";
+import { useAppSelector, useAppDispatch } from "../app/hooks";
+import { useState, useEffect } from "react";
 import PostForm from "../domains/posts/components/PostForm";
 import PostList from "../domains/posts/components/PostList";
 import ErrorAlert from "../components/ErrorAlert";
 import SuccessAlert from "../components/SuccessAlert.tsx";
 import PostTab from "../domains/posts/components/PostTab";
 import Stimulation from "../components/Stimulation.tsx";
+import { handleTabChange } from "../domains/posts/slice.ts";
 
 function Index() {
+  const dispatch = useAppDispatch();
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -24,6 +26,10 @@ function Index() {
     setErrorMessage(message);
     setShowError(true);
   };
+
+  useEffect(() => {
+    dispatch(handleTabChange("recent"));
+  }, [dispatch]);
 
   return (
     <div className="flex justify-center">

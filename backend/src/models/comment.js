@@ -16,7 +16,7 @@ commentSchema.set("toJSON", {
 });
 
 commentSchema.pre(/^find/, function (next) {
-  this.populate("author", "username");
+  this.populate("author", "username profilePicture");
   next();
 });
 

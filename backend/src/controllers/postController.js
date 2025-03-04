@@ -23,7 +23,8 @@ export const removeLike = async (req, res) => {
 };
 
 export const getPosts = async (req, res) => {
-  const posts = await Post.find().populate('author', 'username').sort({ createdAt: -1 });
+  const posts = await Post.find().sort({ createdAt: -1 });
+  console.log(posts);
   res.status(200).json(posts);
 };
 
@@ -35,7 +36,7 @@ export const getPostById = async (req, res) => {
 
 export const getPostsByUserId = async (req, res) => {
   const { userId } = req.params;
-  const posts = await Post.find({ author: userId }).populate('author', 'username');
+  const posts = await Post.find({ author: userId }).sort({ createdAt: -1 });
   res.status(200).json(posts);
 };
 

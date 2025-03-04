@@ -17,7 +17,7 @@ const ProfileHeader = ({ user, isOwnProfile, userId }: ProfileHeaderProps) => {
       <div className="relative">
         <div className="h-32 bg-gray-800"></div>
         <div className="absolute -bottom-16 left-4">
-          <div className="w-32 h-32 rounded-full border-4 border-black bg-gray-300"></div>
+          <img src={user.profilePicture} className="w-32 h-32 rounded-full border-4 border-black bg-gray-300" />
         </div>
       </div>
 

@@ -16,7 +16,7 @@ postSchema.set("toJSON", {
 });
 
 postSchema.pre(/^find/, function (next) {
-  this.populate("author", "username")
+  this.populate("author", "username profilePicture")
       .populate("comments");
   next();
 });

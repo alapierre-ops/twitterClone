@@ -8,7 +8,7 @@ export const createComment = async (req, res) => {
 
 export const getComments = async (req, res) => {
     const { postId } = req.params;
-    const comments = await Comment.find({ post: postId }).populate('author', 'username');
+    const comments = await Comment.find({ post: postId });
     res.status(200).json(comments);
   };
 

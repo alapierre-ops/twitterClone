@@ -5,7 +5,6 @@ import { verifyToken } from "../middlewares/authMiddleware.js";
 
 export const registerUser = async (req, res) => {
   const { username, email, password } = req.body;
-  console.log("req.body :", req.body)
   const hashedPassword = await bcrypt.hash(password, 10);
 
   try {
@@ -18,7 +17,6 @@ export const registerUser = async (req, res) => {
 
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
-  console.log("req.body :", req.body)
   const user = await User.findOne({ email });
 
   if (!user || !(await bcrypt.compare(password, user.password))) {
@@ -50,7 +48,6 @@ export const verifyAuth = async (req, res) => {
 
 export const getUserProfile = async (req, res) => {
   const { id } = req.params;
-  console.log("getUserProfile id :", id)
   const user = await User.findById(id).select("-password");
   if (!user) return res.status(404).json({ message: "No account found." });
   res.json(user);
