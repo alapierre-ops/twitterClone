@@ -1,28 +1,16 @@
-import { useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "../../../app/hooks";
-import { fetchPosts, fetchPostsByUserId } from "../slice";
+import { useAppSelector } from "../../../app/hooks";
 import PostItem from "./PostItem";
 import Loading from "../../../components/Loading";
+import { useEffect } from "react";
 
 const PostList = () => {
-  const dispatch = useAppDispatch();
   const posts = useAppSelector((state) => state.posts.posts);
   const isLoading = useAppSelector((state) => state.posts.isLoading);
   const userId = useAppSelector((state) => state.auth.userId);
-  const activeTab = useAppSelector((state) => state.posts.activeTab);
-
-  const loadPosts = async () => {
-    const profileTabParams = activeTab.split(':');
-    if (profileTabParams[0] === 'profile') {
-      await dispatch(fetchPostsByUserId(profileTabParams[1]));
-    } else {
-      await dispatch(fetchPosts(activeTab));
-    }
-  };
 
   useEffect(() => {
-    loadPosts();
-  }, [activeTab, dispatch]);
+    console.log("posts", posts);
+  }, [posts]);
 
   if (isLoading) {
     return <Loading />;

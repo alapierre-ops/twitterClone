@@ -5,10 +5,11 @@ import { useEffect } from "react";
 import PostList from "../domains/posts/components/PostList";
 import { getUserByIdThunk } from "../domains/users/slice";
 import Stimulation from "../components/Stimulation";
-import { handleTabChange } from "../domains/posts/slice";
+import { fetchPostsByUserId } from "../domains/posts/slice";
 import Loading from "../components/Loading";
 import ProfileHeader from "../domains/users/components/ProfileHeader";
 import Alerts from "../domains/alerts/components/Alerts";
+import { showError } from "../domains/alerts/slice";
 
 function Profile() {
   const { id } = useParams();
@@ -17,14 +18,18 @@ function Profile() {
   const isOwnProfile = (id === userId);
   const { user, isLoading } = useAppSelector((state) => state.userState);
 
-  const getUser = async () => {
+  const loadData = async () => {
     if(!id) return;
-    await dispatch(getUserByIdThunk(id));
-  }
+    try {
+      await dispatch(getUserByIdThunk(id));
+      await dispatch(fetchPostsByUserId(id));
+    } catch (error) {
+      dispatch(showError("Failed to load profile data"));
+    }
+  };
 
   useEffect(() => {
-    if(id) dispatch(handleTabChange(`profile:${id}`));
-    getUser();
+    loadData();
   }, [id, dispatch]);
 
   if (isLoading) {
@@ -43,7 +48,7 @@ function Profile() {
           />
 
           <div className="divide-y divide-gray-800">
-            <PostList/>
+            <PostList />
           </div>
         </div>
       </Stimulation>

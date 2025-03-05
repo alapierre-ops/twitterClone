@@ -44,3 +44,8 @@ export const modifyPost = async (id: string, content: string): Promise<PostRespo
 export const removePost = async (id: string): Promise<void> => {
   await axiosInstance.delete(`/posts/${id}`);
 };
+
+export const getPostsByFollowing = async (userId: string): Promise<PostResponse[]> => {
+  const response = await axiosInstance.get<PostResponse[]>(`/posts/following/${userId}`);
+  return response.data;
+};

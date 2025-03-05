@@ -1,4 +1,5 @@
 import Post from "../models/post.js";
+import User from "../models/user.js";
 
 export const createPost = async (req, res) => {
   const { content, author } = req.body;
@@ -24,7 +25,6 @@ export const removeLike = async (req, res) => {
 
 export const getPosts = async (req, res) => {
   const posts = await Post.find().sort({ createdAt: -1 });
-  console.log(posts);
   res.status(200).json(posts);
 };
 
@@ -37,6 +37,13 @@ export const getPostById = async (req, res) => {
 export const getPostsByUserId = async (req, res) => {
   const { userId } = req.params;
   const posts = await Post.find({ author: userId }).sort({ createdAt: -1 });
+  res.status(200).json(posts);
+};
+
+export const getPostsByFollowing = async (req, res) => {
+  const { userId } = req.params;
+  const user = await User.findById(userId);
+  const posts = await Post.find({ author: { $in: user.following } }).sort({ createdAt: -1 });
   res.status(200).json(posts);
 };
 

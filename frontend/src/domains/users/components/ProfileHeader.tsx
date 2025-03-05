@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useAppDispatch } from "../../../app/hooks";
 import { followUserThunk } from "../slice";
 import { UserResponse } from "../types";
@@ -22,11 +21,6 @@ const ProfileHeader = ({ user, isOwnProfile, userId }: ProfileHeaderProps) => {
       dispatch(followUserThunk({ id: userId, userId: user._id }));
     }
   };
-
-  useEffect(() => {
-      console.log(user);
-      console.log(userId);
-  }, [dispatch, userId]);
 
   return (
     <>

@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { PostState } from './types.ts';
-import { getPosts, createPost, addLike, removeLike, removePost, modifyPost, getPostsByUserId } from './service.ts';
+import { getPosts, createPost, addLike, removeLike, removePost, modifyPost, getPostsByUserId, getPostsByFollowing } from './service.ts';
 
 const initialState: PostState = {
   posts: [],
@@ -21,6 +21,14 @@ export const fetchPostsByUserId = createAsyncThunk(
   'posts/fetchPostsByUserId',
   async (userId: string) => {
     const response = await getPostsByUserId(userId);
+    return response;
+  }
+);
+
+export const fetchPostsByFollowing = createAsyncThunk(
+  'posts/fetchPostsByFollowing',
+  async (userId: string) => {
+    const response = await getPostsByFollowing(userId);
     return response;
   }
 );
@@ -81,11 +89,14 @@ export const handleTabChange = createAsyncThunk(
   'posts/handleTabChange',
   async (tab: string, { dispatch }) => {
     const profileTabParams = tab.split(':');
-    if(profileTabParams[0] !== 'profile'){
-      await dispatch(fetchPosts(tab));
+    if(profileTabParams[0] === 'profile'){
+      await dispatch(fetchPostsByUserId(profileTabParams[1]));
+    }
+    else if(profileTabParams[0] === 'following'){
+      await dispatch(fetchPostsByFollowing(profileTabParams[1]));
     }
     else{
-      await dispatch(fetchPostsByUserId(profileTabParams[1]))
+      await dispatch(fetchPosts(tab));
     }
     return tab;
   }
@@ -195,6 +206,19 @@ const postSlice = createSlice({
       .addCase(fetchPostsByUserId.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message || 'Failed to fetch posts by user id';
+      })
+      .addCase(fetchPostsByFollowing.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchPostsByFollowing.fulfilled, (state, action) => {
+        state.isLoading = false;
+        console.log("action.payload", action.payload);
+        state.posts = action.payload;
+      })
+      .addCase(fetchPostsByFollowing.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.error.message || 'Failed to fetch posts by following';
       });
   },
 });
