@@ -28,20 +28,11 @@ export interface PostState {
   activeTab: string;
 }
 
-export interface PostListProps {
-  onSuccess: (message: string) => void;
-  onError: (message: string) => void;
-}
-
 export interface PostFormProps {
-  onSuccess: (message: string) => void;
-  onError: (message: string) => void;
   userId: string | null;
 }
 
 export interface PostItemProps {
   post: PostResponse;
   userId: string | null;
-  onSuccess: (message: string) => void;
-  onError: (message: string) => void;
 }

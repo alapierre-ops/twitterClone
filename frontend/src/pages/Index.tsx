@@ -1,31 +1,16 @@
 import authGuard from "../domains/auth/authGuard";
 import { useAppSelector, useAppDispatch } from "../app/hooks";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import PostForm from "../domains/posts/components/PostForm";
 import PostList from "../domains/posts/components/PostList";
-import ErrorAlert from "../components/ErrorAlert";
-import SuccessAlert from "../components/SuccessAlert.tsx";
 import PostTab from "../domains/posts/components/PostTab";
 import Stimulation from "../components/Stimulation.tsx";
 import { handleTabChange } from "../domains/posts/slice.ts";
+import Alerts from "../domains/alerts/components/Alerts";
 
 function Index() {
   const dispatch = useAppDispatch();
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [showError, setShowError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
   const userId = useAppSelector((state) => state.auth.userId);
-
-  const handleSuccess = (message: string) => {
-    setSuccessMessage(message);
-    setShowSuccess(true);
-  };
-
-  const handleError = (message: string) => {
-    setErrorMessage(message);
-    setShowError(true);
-  };
 
   useEffect(() => {
     dispatch(handleTabChange("recent"));
@@ -34,32 +19,14 @@ function Index() {
   return (
     <div className="flex justify-center">
       <Stimulation>
-      <div className="max-w-2xl mx-auto z-10">
-        <ErrorAlert
-          showError={showError}
-          setShowError={setShowError}
-          errorMessage={errorMessage}
-        />
+        <div className="w-2xl mx-auto z-10">
+          <Alerts />
+          <PostTab />
 
-        <SuccessAlert
-          showSuccess={showSuccess}
-          setShowSuccess={setShowSuccess}
-          successMessage={successMessage}
-        />
+          <PostForm userId={userId}/>
 
-        <PostTab />
-
-        <PostForm 
-          userId={userId}
-          onSuccess={handleSuccess}
-          onError={handleError}
-        />
-
-        <PostList
-          onSuccess={handleSuccess}
-          onError={handleError}
-        />
-      </div>
+          <PostList/>
+        </div>
       </Stimulation>
     </div>
   );

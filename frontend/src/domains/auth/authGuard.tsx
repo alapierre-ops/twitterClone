@@ -18,17 +18,11 @@ const authGuard = (Component: any) => {
           return;
         }
 
-        try {
-          const response = await axiosInstance.get("/users/verify");
-          if (response.data.isValid) {
-            setIsAuthenticated(true);
-            dispatch(setUser({ userId: response.data.userId, username: response.data.username }));
-          } else {
-            localStorage.removeItem("token");
-            sessionStorage.removeItem("token");
-            navigate("/login");
-          }
-        } catch (error) {
+        const response = await axiosInstance.get("/users/verify");
+        if (response.data.isValid) {
+          setIsAuthenticated(true);
+          dispatch(setUser({ userId: response.data.userId, username: response.data.username }));
+        } else {
           localStorage.removeItem("token");
           sessionStorage.removeItem("token");
           navigate("/login");

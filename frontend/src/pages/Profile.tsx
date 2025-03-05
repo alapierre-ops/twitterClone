@@ -1,30 +1,25 @@
 import { useParams } from "react-router-dom";
 import authGuard from "../domains/auth/authGuard";
 import { useAppSelector, useAppDispatch } from "../app/hooks";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import PostList from "../domains/posts/components/PostList";
 import { getUserByIdThunk } from "../domains/users/slice";
 import Stimulation from "../components/Stimulation";
 import { handleTabChange } from "../domains/posts/slice";
 import Loading from "../components/Loading";
 import ProfileHeader from "../domains/users/components/ProfileHeader";
+import Alerts from "../domains/alerts/components/Alerts";
 
 function Profile() {
   const { id } = useParams();
   const dispatch = useAppDispatch();
   const userId = useAppSelector((state) => state.auth.userId);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const isOwnProfile = (id === userId);
   const { user, isLoading } = useAppSelector((state) => state.userState);
 
   const getUser = async () => {
     if(!id) return;
-    try {
-      await dispatch(getUserByIdThunk(id));
-    } catch (error) {
-      setError("Failed to load user profile");
-    }
+    await dispatch(getUserByIdThunk(id));
   }
 
   useEffect(() => {
@@ -39,7 +34,8 @@ function Profile() {
   return (
     <div className="min-h-screen bg-black text-white">
       <Stimulation>
-        <div className="max-w-2xl mx-auto">
+        <div className="w-2xl mx-auto">
+          <Alerts />
           <ProfileHeader 
             user={user}
             isOwnProfile={isOwnProfile}
@@ -47,10 +43,7 @@ function Profile() {
           />
 
           <div className="divide-y divide-gray-800">
-            <PostList
-              onSuccess={(msg) => setSuccess(msg)}
-              onError={(msg) => setError(msg)}
-            />
+            <PostList/>
           </div>
         </div>
       </Stimulation>

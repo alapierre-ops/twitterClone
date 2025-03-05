@@ -2,6 +2,7 @@ import { useState } from "react";
 import logo from '../assets/logos/darkLogo.png';
 import SignupModal from "../domains/auth/components/SignupModal";
 import LoginModal from "../domains/auth/components/LoginModal";
+import Alerts from "../domains/alerts/components/Alerts";
 
 function Login() {
   const [isSignupOpen, setSignupOpen] = useState(false);
@@ -10,6 +11,8 @@ function Login() {
   return (
     <div className="h-screen flex justify-center items-center bg-black">
       <div className="flex flex-wrap items-center justify-around w-full px-6">
+
+        <Alerts/>
 
         <div className="flex justify-center items-center w-1/2">
           <img src={logo} alt="logo" className="h-3/4 max-h-96 object-contain" />

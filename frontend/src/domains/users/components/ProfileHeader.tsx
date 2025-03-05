@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "../../../app/hooks";
-import { followUserThunk, getUserByIdThunk } from "../slice";
+import { useAppDispatch } from "../../../app/hooks";
+import { followUserThunk } from "../slice";
 import { UserResponse } from "../types";
 
 interface ProfileHeaderProps {

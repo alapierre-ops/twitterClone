@@ -1,15 +1,17 @@
 import { Menu, MenuItem } from "@mui/material";
 import { useState } from "react";
-import { useAppDispatch } from "../../../app/hooks";
-import { deletePost, likePost, unlikePost, updatePost } from "../slice";
+import { useAppDispatch, useAppSelector } from "../../../app/hooks";
+import { deletePost, fetchPosts, likePost, unlikePost, updatePost } from "../slice";
 import { PostItemProps } from "../types";
 import { useNavigate } from "react-router-dom";
+import { showSuccess } from "../../alerts/slice";
 
-const PostItem = ({ post, userId, onSuccess, onError }: PostItemProps) => {
+const PostItem = ({ post, userId }: PostItemProps) => {
   const dispatch = useAppDispatch();
   const [anchorElement, setAnchorElement] = useState<null | HTMLElement>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState(post.content);
+  const activeTab = useAppSelector((state) => state.posts.activeTab);
   const isLiked = userId ? post.likes.includes(userId) : false;
   const isAuthor = userId === post.author._id;
   const navigate = useNavigate();
@@ -24,44 +26,32 @@ const PostItem = ({ post, userId, onSuccess, onError }: PostItemProps) => {
   };
 
   const handleLike = async () => {
-    try {
-      if (!userId) return;
-      if (isLiked) {
-        await dispatch(unlikePost({ postId: post.id, userId }));
-      } else {
-        await dispatch(likePost({ postId: post.id, userId }));
-      }
-    } catch (error) {
-      console.log(error);
-      onError("Failed to like/unlike post. Please try again.");
+    if (!userId) return;
+    if (isLiked) {
+      await dispatch(unlikePost({ postId: post.id, userId }));
+    } else {
+      await dispatch(likePost({ postId: post.id, userId }));
+    }
+    if(activeTab === "trending") {
+      dispatch(fetchPosts(activeTab));
     }
   };
 
   const handleEdit = async () => {
-    try {
-      await dispatch(updatePost({ postId: post.id, content: editedContent }));
-      onSuccess("Post updated successfully!");
-      handleMenuClose();
-      setIsEditing(false);
-    } catch (error) {
-      console.log(error);
-      onError("Failed to update post. Please try again.");
-    }
+    await dispatch(updatePost({ postId: post.id, content: editedContent }));
+    dispatch(showSuccess("Post updated successfully!"));
+    handleMenuClose();
+    setIsEditing(false);
   };
 
   const handleDelete = async () => {
-    try {
-      await dispatch(deletePost(post.id));
-      onSuccess("Post deleted successfully!");
-      handleMenuClose();
-    } catch (error) {
-      console.log(error);
-      onError("Failed to delete post. Please try again.");
-    }
+    await dispatch(deletePost(post.id));
+    dispatch(showSuccess("Post deleted successfully!"));
+    handleMenuClose();
   };
 
   return (
-    <li className="py-4 px-4 hover:bg-gray-900 cursor-pointer transition duration-150 ease-in-out">
+    <li className="py-4 px-4 w-2xl hover:bg-gray-900 cursor-pointer transition duration-150 ease-in-out">
       <div className="flex space-x-3">
         <div className="flex-shrink-0">
           <img src={post.author.profilePicture || "https://mastertondental.co.nz/wp-content/uploads/2022/12/team-profile-placeholder.jpg"}

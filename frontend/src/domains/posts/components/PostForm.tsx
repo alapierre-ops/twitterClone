@@ -1,22 +1,20 @@
 import { useState } from "react";
-import { useAppDispatch } from "../../../app/hooks";
-import { addPost } from "../slice";
+import { useAppDispatch, useAppSelector } from "../../../app/hooks";
+import { addPost, fetchPosts } from "../slice";
 import { PostFormProps } from "../types";
+import { showSuccess } from "../../alerts/slice";
 
-const PostForm = ({ onSuccess, onError, userId }: PostFormProps) => {
+const PostForm = ({ userId }: PostFormProps) => {
   const dispatch = useAppDispatch();
   const [content, setContent] = useState("");
+  const activeTab = useAppSelector((state) => state.posts.activeTab);
 
   const createPost = async () => {
-    try {
-      if (!userId) return;
-      await dispatch(addPost({ content, author: userId }));
-      setContent("");
-      onSuccess("Post created successfully!");
-    } catch (error) {
-      console.log(error);
-      onError("Failed to create post. Please try again.");
-    }
+    if (!userId) return;
+    await dispatch(addPost({ content, author: userId }));
+    setContent("");
+    dispatch(showSuccess("Post created successfully!"));
+    dispatch(fetchPosts(activeTab));
   };
 
   return (

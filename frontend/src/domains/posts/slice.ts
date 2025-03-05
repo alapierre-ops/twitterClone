@@ -115,7 +115,7 @@ const postSlice = createSlice({
       })
       .addCase(addPost.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.posts = [...state.posts, action.payload];
+        state.posts = [action.payload, ...state.posts];
       })
       .addCase(addPost.rejected, (state, action) => {
         state.isLoading = false;

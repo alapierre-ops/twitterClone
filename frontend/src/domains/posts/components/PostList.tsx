@@ -2,10 +2,9 @@ import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import { fetchPosts, fetchPostsByUserId } from "../slice";
 import PostItem from "./PostItem";
-import { PostListProps } from "../types";
 import Loading from "../../../components/Loading";
 
-const PostList = ({ onSuccess, onError }: PostListProps) => {
+const PostList = () => {
   const dispatch = useAppDispatch();
   const posts = useAppSelector((state) => state.posts.posts);
   const isLoading = useAppSelector((state) => state.posts.isLoading);
@@ -13,16 +12,11 @@ const PostList = ({ onSuccess, onError }: PostListProps) => {
   const activeTab = useAppSelector((state) => state.posts.activeTab);
 
   const loadPosts = async () => {
-    try {
-      const profileTabParams = activeTab.split(':');
-      if (profileTabParams[0] === 'profile') {
-        await dispatch(fetchPostsByUserId(profileTabParams[1]));
-      } else {
-        await dispatch(fetchPosts(activeTab));
-      }
-    } catch (error) {
-      console.log(error);
-      onError("Failed to load posts. Please refresh the page.");
+    const profileTabParams = activeTab.split(':');
+    if (profileTabParams[0] === 'profile') {
+      await dispatch(fetchPostsByUserId(profileTabParams[1]));
+    } else {
+      await dispatch(fetchPosts(activeTab));
     }
   };
 
@@ -47,8 +41,6 @@ const PostList = ({ onSuccess, onError }: PostListProps) => {
               key={post.id}
               post={post}
               userId={userId}
-              onSuccess={onSuccess}
-              onError={onError}
             />
           ))}
         </ul>

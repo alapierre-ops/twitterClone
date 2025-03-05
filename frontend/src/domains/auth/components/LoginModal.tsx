@@ -17,14 +17,9 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
   const dispatch = useAppDispatch();
 
   const handleLogin = async () => {
-    try {
-      await dispatch(loginUser({ email, password, remember })).unwrap();
+      await dispatch(loginUser({ email, password, remember }));
       navigate("/");
       onClose();
-    } catch (error: any) {
-      console.log(error.response?.data?.message || 'Login failed');
-      alert(error.response?.data?.message || 'Login failed');
-    }
   }
   
   return (

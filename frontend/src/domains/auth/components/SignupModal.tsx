@@ -1,8 +1,6 @@
 import { useState } from "react";
 import Modal from "../../../components/Modal";
-import { register, login } from "../../auth/service.ts";
 import { useNavigate } from "react-router-dom";
-import { Alert, AlertTitle } from "@mui/material";
 import { useAppDispatch } from "../../../app/hooks";
 import { loginUser, registerUser } from "../slice.ts";
 
@@ -16,37 +14,20 @@ const SignupModal = ({ isOpen, onClose }: SignupModalProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [secondPassword, setSecondPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
   
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
   const handleSignup = async () => {
-    try {
-      setError(null);
-      await dispatch(registerUser({ username, email, password, secondPassword }));
-      await dispatch(loginUser({ email, password, remember: false }));
-      onClose();
-      navigate("/");
-    } catch (error: any) {
-      console.log(error);
-      if(error.request.status === 400){
-        setError("An account already exists with this email or username");
-      } else {
-        setError(error.message || "An error occurred");
-      }
-    }
+    await dispatch(registerUser({ username, email, password, secondPassword }));
+    await dispatch(loginUser({ email, password, remember: false }));
+    onClose();
+    navigate("/");
   }
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <h2 className="text-2xl font-bold mb-4">Create an Account</h2>
-      {error && (
-        <Alert severity="error" className="mb-3">
-          <AlertTitle>Error</AlertTitle>
-          {error}
-        </Alert>
-      )}
       <input type="text" required placeholder="Username" onChange={(e) => setUsername(e.target.value)} className="w-full p-2 border rounded bg-gray-900 mb-3" />
       <input type="email" required placeholder="Email" onChange={(e) => setEmail(e.target.value)} className="w-full p-2 border rounded bg-gray-900 mb-3" />
       <input type="password" required placeholder="Password" onChange={(e) => setPassword(e.target.value)} className="w-full p-2 border rounded bg-gray-900 mb-3" />
