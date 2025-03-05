@@ -1,12 +1,18 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { PostState } from './types.ts';
-import { getPosts, createPost, addLike, removeLike, removePost, modifyPost, getPostsByUserId, getPostsByFollowing } from './service.ts';
+import { 
+  getPosts, createPost, addLike,
+  removeLike, removePost, modifyPost,
+  getPostsByUserId, getPostsByFollowing, getPostById,
+  createCommentService, deleteCommentService, getCommentsByPostIdService
+} from './service.ts';
 
 const initialState: PostState = {
   posts: [],
   isLoading: false,
   error: null,
   activeTab: 'recent',
+  comments: {},
 };
 
 export const fetchPosts = createAsyncThunk(
@@ -99,6 +105,40 @@ export const handleTabChange = createAsyncThunk(
       await dispatch(fetchPosts(tab));
     }
     return tab;
+  }
+);
+
+export const fetchPostById = createAsyncThunk(
+  'posts/fetchPostById',
+  async (id: string) => {
+    const response = await getPostById(id);
+    return response;
+  }
+);
+
+export const fetchCommentsByPostId = createAsyncThunk(
+  'posts/fetchCommentsByPostId',
+  async (postId: string) => {
+    const response = await getCommentsByPostIdService(postId);
+    return { postId, comments: response };
+  }
+);
+
+export const createComment = createAsyncThunk(
+  'posts/createComment',
+  async ({ postId, content, userId }: { postId: string; content: string; userId: string }, { dispatch }) => {
+    const response = await createCommentService(postId, content, userId);
+    await dispatch(fetchCommentsByPostId(postId));
+    return { postId, comment: response };
+  }
+);
+
+export const deleteComment = createAsyncThunk(
+  'posts/deleteComment',
+  async ({ postId, commentId }: { postId: string; commentId: string }, { dispatch }) => {
+    await deleteCommentService(postId, commentId);
+    await dispatch(fetchCommentsByPostId(postId));
+    return { postId, commentId };
   }
 );
 
@@ -219,6 +259,91 @@ const postSlice = createSlice({
       .addCase(fetchPostsByFollowing.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message || 'Failed to fetch posts by following';
+      })
+      .addCase(fetchPostById.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchPostById.fulfilled, (state, action) => {
+        state.isLoading = false;
+        const index = state.posts.findIndex((p) => p.id === action.payload.id);
+        if (index !== -1) {
+          state.posts[index] = action.payload;
+        } else {
+          state.posts.push(action.payload);
+        }
+      })
+      .addCase(fetchPostById.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.error.message || 'Failed to fetch post';
+      })
+      .addCase(fetchCommentsByPostId.pending, (state, action) => {
+        const postId = action.meta.arg;
+        if (!state.comments[postId]) {
+          state.comments[postId] = {
+            items: [],
+            isLoading: true,
+            error: null,
+          };
+        } else {
+          state.comments[postId].isLoading = true;
+          state.comments[postId].error = null;
+        }
+      })
+      .addCase(fetchCommentsByPostId.fulfilled, (state, action) => {
+        const { postId, comments } = action.payload;
+        state.comments[postId] = {
+          items: comments,
+          isLoading: false,
+          error: null,
+        };
+      })
+      .addCase(fetchCommentsByPostId.rejected, (state, action) => {
+        const postId = action.meta.arg;
+        if (!state.comments[postId]) {
+          state.comments[postId] = {
+            items: [],
+            isLoading: false,
+            error: action.error.message || 'Failed to fetch comments',
+          };
+        } else {
+          state.comments[postId].isLoading = false;
+          state.comments[postId].error = action.error.message || 'Failed to fetch comments';
+        }
+      })
+      .addCase(createComment.pending, (state, action) => {
+        const { postId } = action.meta.arg;
+        if (!state.comments[postId]) {
+          state.comments[postId] = {
+            items: [],
+            isLoading: true,
+            error: null,
+          };
+        } else {
+          state.comments[postId].isLoading = true;
+          state.comments[postId].error = null;
+        }
+      })
+      .addCase(createComment.rejected, (state, action) => {
+        const { postId } = action.meta.arg;
+        if (state.comments[postId]) {
+          state.comments[postId].isLoading = false;
+          state.comments[postId].error = action.error.message || 'Failed to create comment';
+        }
+      })
+      .addCase(deleteComment.pending, (state, action) => {
+        const { postId } = action.meta.arg;
+        if (state.comments[postId]) {
+          state.comments[postId].isLoading = true;
+          state.comments[postId].error = null;
+        }
+      })
+      .addCase(deleteComment.rejected, (state, action) => {
+        const { postId } = action.meta.arg;
+        if (state.comments[postId]) {
+          state.comments[postId].isLoading = false;
+          state.comments[postId].error = action.error.message || 'Failed to delete comment';
+        }
       });
   },
 });

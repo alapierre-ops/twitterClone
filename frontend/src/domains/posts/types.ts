@@ -8,10 +8,11 @@ export interface Comment {
   id: string;
   content: string;
   author: Author;
+  likes: string[];
   createdAt: string;
 }
 
-export interface PostResponse {
+export interface Post {
   id: string;
   content: string;
   author: Author;
@@ -22,10 +23,17 @@ export interface PostResponse {
 }
 
 export interface PostState {
-  posts: PostResponse[];
+  posts: Post[];
   isLoading: boolean;
   error: string | null;
   activeTab: string;
+  comments: {
+    [postId: string]: {
+      items: Comment[];
+      isLoading: boolean;
+      error: string | null;
+    };
+  };
 }
 
 export interface PostFormProps {
@@ -33,6 +41,6 @@ export interface PostFormProps {
 }
 
 export interface PostItemProps {
-  post: PostResponse;
+  post: Post;
   userId: string | null;
 }

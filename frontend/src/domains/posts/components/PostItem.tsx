@@ -25,6 +25,10 @@ const PostItem = ({ post, userId }: PostItemProps) => {
     setAnchorElement(null);
   };
 
+  const handlePostClick = () => {
+    navigate(`/post/${post.id}`);
+  };
+
   const handleLike = async () => {
     if (!userId) return;
     if (isLiked) {
@@ -51,7 +55,10 @@ const PostItem = ({ post, userId }: PostItemProps) => {
   };
 
   return (
-    <li className="py-4 px-4 w-2xl hover:bg-gray-900 cursor-pointer transition duration-150 ease-in-out">
+    <li 
+      className="py-4 px-4 w-2xl hover:bg-gray-900 cursor-pointer transition duration-150 ease-in-out"
+      onClick={handlePostClick}
+    >
       <div className="flex space-x-3">
         <div className="flex-shrink-0">
           <img src={post.author.profilePicture || "https://mastertondental.co.nz/wp-content/uploads/2022/12/team-profile-placeholder.jpg"}
