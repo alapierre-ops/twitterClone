@@ -12,7 +12,15 @@ const PostItem = ({ post, userId }: PostItemProps) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
+  if (!post) {
+    return null;
+  }
+
   const postData = post.type === 'post' ? post : post.originalPost;
+
+  if (!postData) {
+    return null;
+  }
 
   const [anchorElement, setAnchorElement] = useState<null | HTMLElement>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -22,8 +30,8 @@ const PostItem = ({ post, userId }: PostItemProps) => {
   const [isRepostDialogOpen, setIsRepostDialogOpen] = useState(false);
   const [hasReposted, setHasReposted] = useState(false);
 
-  const isLiked = userId ? postData.likes.includes(userId) : false;
-  const isAuthor = userId === postData.author._id;
+  const isLiked = userId && postData.likes ? postData.likes.includes(userId) : false;
+  const isAuthor = userId && postData.author ? userId === postData.author._id : false;
   const activeTab = useAppSelector((state) => state.posts.activeTab);
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -96,6 +104,11 @@ const PostItem = ({ post, userId }: PostItemProps) => {
   useEffect(() => {
     fetchCounts();
   }, [dispatch, postData.id, userId]);
+
+  if(!postData.author) {
+    console.log("Missing author for post:", postData.id);
+    return null;
+  }
 
   return (
     <>

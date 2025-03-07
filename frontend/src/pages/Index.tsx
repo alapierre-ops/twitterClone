@@ -24,7 +24,7 @@ function Index() {
 
   useEffect(() => {
     loadPosts();
-  }, []);
+  }, [activeTab, userId, dispatch]);
 
   return (
     <div className="flex justify-center">
