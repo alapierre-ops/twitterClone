@@ -48,6 +48,7 @@ const authSlice = createSlice({
       state.error = null;
       localStorage.removeItem('token');
       sessionStorage.removeItem('token');
+      window.location.href = '/login';
     },
     clearError: (state) => {
       state.error = null;

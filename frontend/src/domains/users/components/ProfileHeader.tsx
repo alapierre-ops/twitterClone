@@ -2,15 +2,10 @@ import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import { followUserThunk, getFollowersThunk, getFollowingUsersThunk } from "../slice";
 import UserListModal from "./UserListModal";
-<<<<<<< HEAD
 import EditProfileModal from "./EditProfileModal";
 import Loading from "../../../components/Loading";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../../auth/slice";
-=======
-import Loading from "../../../components/Loading";
-import { useNavigate } from "react-router-dom";
->>>>>>> 69f1894c920f031fa5231aee00f0e619f8995601
 
 interface ProfileHeaderProps {
   activeTab: 'posts' | 'replies' | 'likes';
@@ -23,11 +18,8 @@ const ProfileHeader = ({ activeTab, onTabChange }: ProfileHeaderProps) => {
   const currentUserId = useAppSelector((state) => state.auth.userId);
   const [showFollowersModal, setShowFollowersModal] = useState(false);
   const [showFollowingModal, setShowFollowingModal] = useState(false);
-<<<<<<< HEAD
   const [showEditProfileModal, setShowEditProfileModal] = useState(false);
 
-=======
->>>>>>> 69f1894c920f031fa5231aee00f0e619f8995601
   const navigate = useNavigate();
 
   if (!user) return <Loading fullScreen={false} />;
@@ -42,23 +34,6 @@ const ProfileHeader = ({ activeTab, onTabChange }: ProfileHeaderProps) => {
   const handleFollowClick = () => {
     if(currentUserId) {
       dispatch(followUserThunk({ id: currentUserId, userId: user._id }));
-<<<<<<< HEAD
-=======
-    }
-  };
-
-  const handleFollowersClick = async () => {
-    if (isOwnProfile) {
-      await dispatch(getFollowersThunk(user._id));
-      setShowFollowersModal(true);
-    }
-  };
-
-  const handleFollowingClick = async () => {
-    if (isOwnProfile) {
-      await dispatch(getFollowingUsersThunk(user._id));
-      setShowFollowingModal(true);
->>>>>>> 69f1894c920f031fa5231aee00f0e619f8995601
     }
   };
 
@@ -94,7 +69,6 @@ const ProfileHeader = ({ activeTab, onTabChange }: ProfileHeaderProps) => {
           <span>Back to feed</span>
         </button>
 
-<<<<<<< HEAD
         <button
         type="button"
         className="absolute top-4 right-4 flex items-center space-x-2 text-blue-400 hover:text-blue-500 transition-colors duration-200 bg-gray-900 px-4 py-2 rounded-full"
@@ -106,8 +80,6 @@ const ProfileHeader = ({ activeTab, onTabChange }: ProfileHeaderProps) => {
           </svg>
         </button>
 
-=======
->>>>>>> 69f1894c920f031fa5231aee00f0e619f8995601
         <div className="h-32 bg-gray-800"></div>
         <div className="absolute -bottom-16 left-4">
           <img
@@ -129,10 +101,7 @@ const ProfileHeader = ({ activeTab, onTabChange }: ProfileHeaderProps) => {
             <button 
               type="button"
               className="px-4 py-2 border border-gray-600 rounded-full hover:bg-gray-900"
-<<<<<<< HEAD
               onClick={handleEditProfileClick}
-=======
->>>>>>> 69f1894c920f031fa5231aee00f0e619f8995601
             >
               Edit Profile
             </button>
@@ -208,14 +177,11 @@ const ProfileHeader = ({ activeTab, onTabChange }: ProfileHeaderProps) => {
         onClose={() => setShowFollowingModal(false)}
         title="Following"
       />
-<<<<<<< HEAD
 
       <EditProfileModal
         isOpen={showEditProfileModal}
         onClose={() => setShowEditProfileModal(false)}
       />
-=======
->>>>>>> 69f1894c920f031fa5231aee00f0e619f8995601
     </>
   );
 };
