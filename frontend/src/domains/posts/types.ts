@@ -12,28 +12,39 @@ export interface Comment {
   createdAt: string;
 }
 
-export interface Post {
+export interface BasePost {
   id: string;
-  content: string;
+  createdAt: string;
   author: Author;
+}
+
+export interface RegularPost extends BasePost {
+  type: 'post';
+  content: string;
   likes: string[];
   comments: Comment[];
-  createdAt: string;
   updatedAt: string;
 }
+
+export interface RepostPost extends BasePost {
+  type: 'repost';
+  originalPost: {
+    id: string;
+    content: string;
+    author: Author;
+    likes: string[];
+    createdAt: string;
+    updatedAt: string;
+  };
+}
+
+export type Post = RegularPost | RepostPost;
 
 export interface PostState {
   posts: Post[];
   isLoading: boolean;
   error: string | null;
   activeTab: string;
-  comments: {
-    [postId: string]: {
-      items: Comment[];
-      isLoading: boolean;
-      error: string | null;
-    };
-  };
 }
 
 export interface PostFormProps {

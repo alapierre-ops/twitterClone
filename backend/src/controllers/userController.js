@@ -1,4 +1,4 @@
-import User from "../models/user.js";
+import User from "../models/users.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { verifyToken } from "../middlewares/authMiddleware.js";
@@ -73,4 +73,50 @@ export const followUser = async (req, res) => {
   await user.save();
   await userToFollow.save();
   res.json(userToFollow);
+};
+
+export const getFollowingUsers = async (req, res) => {
+  const { id } = req.params;
+  const user = await User.findById(id).select("-password");
+  if (!user) return res.status(404).json({ message: "No account found." });
+  const followingUsers = await User.find({ _id: { $in: user.following } }).select("-password");
+  res.json(followingUsers);
+};
+
+export const getFollowers = async (req, res) => {
+  const { id } = req.params;
+  const user = await User.findById(id).select("-password");
+  if (!user) return res.status(404).json({ message: "No account found." });
+  const followers = await User.find({ _id: { $in: user.followers } }).select("-password");
+  res.json(followers);
+};
+
+export const updateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { username, bio } = req.body;
+    
+    const user = await User.findById(id).select("-password");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    if (username && username !== user.username) {
+      const existingUser = await User.findOne({ username });
+      if (existingUser) {
+        return res.status(400).json({ message: "Username is already taken" });
+      }
+    }
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      {
+        ...(username && { username }),
+        ...(bio !== undefined && { bio })
+      },
+      { new: true }
+    ).select("-password");
+    res.json(updatedUser);
+  } catch (error) {
+    console.error("Error updating user:", error);
+    res.status(500).json({ message: "Server error" });
+  }
 };

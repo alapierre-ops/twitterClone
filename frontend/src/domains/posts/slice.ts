@@ -4,7 +4,7 @@ import {
   getPosts, createPost, addLike,
   removeLike, removePost, modifyPost,
   getPostsByUserId, getPostsByFollowing, getPostById,
-  createCommentService, deleteCommentService, getCommentsByPostIdService
+  getLikedPostsByUserId, getRepliesByUserId,
 } from './service.ts';
 
 const initialState: PostState = {
@@ -12,7 +12,6 @@ const initialState: PostState = {
   isLoading: false,
   error: null,
   activeTab: 'recent',
-  comments: {},
 };
 
 export const fetchPosts = createAsyncThunk(
@@ -27,6 +26,14 @@ export const fetchPostsByUserId = createAsyncThunk(
   'posts/fetchPostsByUserId',
   async (userId: string) => {
     const response = await getPostsByUserId(userId);
+    return response;
+  }
+);
+
+export const fetchPostById = createAsyncThunk(
+  'posts/fetchPostById',
+  async (postId: string) => {
+    const response = await getPostById(postId);
     return response;
   }
 );
@@ -108,37 +115,19 @@ export const handleTabChange = createAsyncThunk(
   }
 );
 
-export const fetchPostById = createAsyncThunk(
-  'posts/fetchPostById',
-  async (id: string) => {
-    const response = await getPostById(id);
+export const fetchLikedPosts = createAsyncThunk(
+  'posts/fetchLikedPosts',
+  async (userId: string) => {
+    const response = await getLikedPostsByUserId(userId);
     return response;
   }
 );
 
-export const fetchCommentsByPostId = createAsyncThunk(
-  'posts/fetchCommentsByPostId',
-  async (postId: string) => {
-    const response = await getCommentsByPostIdService(postId);
-    return { postId, comments: response };
-  }
-);
-
-export const createComment = createAsyncThunk(
-  'posts/createComment',
-  async ({ postId, content, userId }: { postId: string; content: string; userId: string }, { dispatch }) => {
-    const response = await createCommentService(postId, content, userId);
-    await dispatch(fetchCommentsByPostId(postId));
-    return { postId, comment: response };
-  }
-);
-
-export const deleteComment = createAsyncThunk(
-  'posts/deleteComment',
-  async ({ postId, commentId }: { postId: string; commentId: string }, { dispatch }) => {
-    await deleteCommentService(postId, commentId);
-    await dispatch(fetchCommentsByPostId(postId));
-    return { postId, commentId };
+export const fetchReplies = createAsyncThunk(
+  'posts/fetchReplies',
+  async (userId: string) => {
+    const response = await getRepliesByUserId(userId);
+    return response;
   }
 );
 
@@ -160,6 +149,18 @@ const postSlice = createSlice({
         state.isLoading = false;
         state.error = action.error.message || 'Failed to fetch posts';
       })
+      .addCase(fetchPostById.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchPostById.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.posts = [action.payload, ...state.posts];
+      })
+      .addCase(fetchPostById.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.error.message || 'Failed to fetch post by id';
+      })
       .addCase(addPost.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -173,53 +174,77 @@ const postSlice = createSlice({
         state.error = action.error.message || 'Failed to create post';
         })
       .addCase(likePost.pending, (state) => {
-        state.isLoading = true;
         state.error = null;
       })
       .addCase(likePost.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.posts = state.posts.map((post) => 
-          post.id === action.payload.id ? action.payload : post
-        );
+        state.posts = state.posts.map((post) => {
+          if (post.type === 'post' && post.id === action.payload.id) {
+            return { ...post, ...action.payload };
+          }
+          if (post.type === 'repost' && post.originalPost.id === action.payload.id) {
+            return {
+              ...post,
+              originalPost: { ...post.originalPost, ...action.payload }
+            };
+          }
+          return post;
+        });
       })
       .addCase(likePost.rejected, (state, action) => {
-        state.isLoading = false;
         state.error = action.error.message || 'Failed to like post';
       })
       .addCase(unlikePost.pending, (state) => {
-        state.isLoading = true;
         state.error = null;
       })
       .addCase(unlikePost.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.posts = state.posts.map((post) => 
-          post.id === action.payload.id ? action.payload : post
-        );
+        state.posts = state.posts.map((post) => {
+          if (post.type === 'post' && post.id === action.payload.id) {
+            return { ...post, ...action.payload };
+          }
+          if (post.type === 'repost' && post.originalPost.id === action.payload.id) {
+            return {
+              ...post,
+              originalPost: { ...post.originalPost, ...action.payload }
+            };
+          }
+          return post;
+        });
       })
       .addCase(unlikePost.rejected, (state, action) => {
-        state.isLoading = false;
         state.error = action.error.message || 'Failed to unlike post';
       })
       .addCase(updatePost.pending, (state) => {
-        state.isLoading = true;
         state.error = null;
       })
       .addCase(updatePost.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.posts = state.posts.map((post) => 
-          post.id === action.payload.id ? action.payload : post
-        );
+        state.posts = state.posts.map((post) => {
+          if (post.type === 'post' && post.id === action.payload.id) {
+            return { ...post, ...action.payload };
+          }
+          if (post.type === 'repost' && post.originalPost.id === action.payload.id) {
+            return {
+              ...post,
+              originalPost: { ...post.originalPost, ...action.payload }
+            };
+          }
+          return post;
+        });
       })
       .addCase(updatePost.rejected, (state, action) => {
-        state.isLoading = false;
         state.error = action.error.message || 'Failed to update post';
       })
       .addCase(deletePost.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(deletePost.fulfilled, (state) => {
+      .addCase(deletePost.fulfilled, (state, action) => {
         state.isLoading = false;
+        state.posts = state.posts.filter(post => {
+          if (post.type === 'post') {
+            return post.id !== action.meta.arg;
+          }
+          return post.originalPost.id !== action.meta.arg;
+        });
       })
       .addCase(deletePost.rejected, (state, action) => {
         state.isLoading = false;
@@ -260,90 +285,29 @@ const postSlice = createSlice({
         state.isLoading = false;
         state.error = action.error.message || 'Failed to fetch posts by following';
       })
-      .addCase(fetchPostById.pending, (state) => {
+      .addCase(fetchLikedPosts.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(fetchPostById.fulfilled, (state, action) => {
+      .addCase(fetchLikedPosts.fulfilled, (state, action) => {
         state.isLoading = false;
-        const index = state.posts.findIndex((p) => p.id === action.payload.id);
-        if (index !== -1) {
-          state.posts[index] = action.payload;
-        } else {
-          state.posts.push(action.payload);
-        }
+        state.posts = action.payload;
       })
-      .addCase(fetchPostById.rejected, (state, action) => {
+      .addCase(fetchLikedPosts.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.error.message || 'Failed to fetch post';
+        state.error = action.error.message || 'Failed to fetch liked posts';
       })
-      .addCase(fetchCommentsByPostId.pending, (state, action) => {
-        const postId = action.meta.arg;
-        if (!state.comments[postId]) {
-          state.comments[postId] = {
-            items: [],
-            isLoading: true,
-            error: null,
-          };
-        } else {
-          state.comments[postId].isLoading = true;
-          state.comments[postId].error = null;
-        }
+      .addCase(fetchReplies.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
       })
-      .addCase(fetchCommentsByPostId.fulfilled, (state, action) => {
-        const { postId, comments } = action.payload;
-        state.comments[postId] = {
-          items: comments,
-          isLoading: false,
-          error: null,
-        };
+      .addCase(fetchReplies.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.posts = action.payload;
       })
-      .addCase(fetchCommentsByPostId.rejected, (state, action) => {
-        const postId = action.meta.arg;
-        if (!state.comments[postId]) {
-          state.comments[postId] = {
-            items: [],
-            isLoading: false,
-            error: action.error.message || 'Failed to fetch comments',
-          };
-        } else {
-          state.comments[postId].isLoading = false;
-          state.comments[postId].error = action.error.message || 'Failed to fetch comments';
-        }
-      })
-      .addCase(createComment.pending, (state, action) => {
-        const { postId } = action.meta.arg;
-        if (!state.comments[postId]) {
-          state.comments[postId] = {
-            items: [],
-            isLoading: true,
-            error: null,
-          };
-        } else {
-          state.comments[postId].isLoading = true;
-          state.comments[postId].error = null;
-        }
-      })
-      .addCase(createComment.rejected, (state, action) => {
-        const { postId } = action.meta.arg;
-        if (state.comments[postId]) {
-          state.comments[postId].isLoading = false;
-          state.comments[postId].error = action.error.message || 'Failed to create comment';
-        }
-      })
-      .addCase(deleteComment.pending, (state, action) => {
-        const { postId } = action.meta.arg;
-        if (state.comments[postId]) {
-          state.comments[postId].isLoading = true;
-          state.comments[postId].error = null;
-        }
-      })
-      .addCase(deleteComment.rejected, (state, action) => {
-        const { postId } = action.meta.arg;
-        if (state.comments[postId]) {
-          state.comments[postId].isLoading = false;
-          state.comments[postId].error = action.error.message || 'Failed to delete comment';
-        }
+      .addCase(fetchReplies.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.error.message || 'Failed to fetch replies';
       });
   },
 });

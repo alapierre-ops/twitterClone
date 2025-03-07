@@ -1,4 +1,5 @@
 import subwayGif from "../assets/subway.gif";
+import minecraft from "../assets/minecraft.mp4";
 
 export default function Stimulation({ children }: { children: React.ReactNode }) {
   return (
@@ -8,7 +9,7 @@ export default function Stimulation({ children }: { children: React.ReactNode })
       </div>
       {children}
       <div className="w-70 h-screen fixed right-0">
-        <img src={subwayGif} alt="Subway Surfers" className="w-full h-full object-cover" />
+        <video src={minecraft} autoPlay loop muted className="w-full h-full object-cover" />
       </div>
     </div>
   )

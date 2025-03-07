@@ -1,14 +1,17 @@
-import Comment from "../models/comment.js";
+import Comment from "../models/comments.js";
 
 export const createComment = async (req, res) => {
-  const { content, postId, author } = req.body;
-  const comment = await Comment.create({ content, author, post: postId });
+  const { content, post, author } = req.body;
+  console.log("content", content);
+  console.log("post", post);
+  console.log("author", author);
+  const comment = await Comment.create({ content, author, post });
   res.status(201).json(comment);
 };
 
 export const getComments = async (req, res) => {
-    const { postId } = req.params;
-    const comments = await Comment.find({ post: postId });
+    const { post } = req.params;
+    const comments = await Comment.find({ post }).sort({ likes: -1 });
     res.status(200).json(comments);
   };
 
@@ -26,17 +29,23 @@ export const deleteComment = async (req, res) => {
 };
 
 export const likeComment = async (req, res) => {
-  const { id } = req.params;
+  const { id, userId } = req.params;
   const comment = await Comment.findById(id);
-  comment.likes.push(req.user._id);
+  comment.likes.push(userId);
   await comment.save();
   res.status(200).json(comment);
 };
 
 export const unlikeComment = async (req, res) => {
-  const { id } = req.params;
+  const { id, userId } = req.params;
   const comment = await Comment.findById(id);
-  comment.likes = comment.likes.filter(like => like.toString() !== req.user._id.toString());
+  comment.likes = comment.likes.filter(like => like.toString() !== userId.toString());
   await comment.save();
   res.status(200).json(comment);
+};
+
+export const getCommentsCountByPost = async (req, res) => {
+  const { postId } = req.params;
+  const commentsCount = await Comment.countDocuments({ post: postId });
+  res.status(200).json(commentsCount);
 };

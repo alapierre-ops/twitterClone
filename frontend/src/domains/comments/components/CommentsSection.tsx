@@ -1,30 +1,30 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
-import { createComment, fetchCommentsByPostId } from "../slice";
-import { Comment } from "../types";
+import { addComment, fetchCommentsByPost, likeComment, unlikeComment } from "../slice";
+import { Comment } from "../../posts/types";
 import Loading from "../../../components/Loading";
 import { showError } from "../../alerts/slice";
 import authGuard from "../../auth/authGuard";
 
 interface CommentsSectionProps {
-  postId: string;
+  post: string;
 }
 
-const CommentsSection = ({ postId }: CommentsSectionProps) => {
+const CommentsSection = ({ post }: CommentsSectionProps) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [commentText, setCommentText] = useState("");
   
   const userId = useAppSelector((state) => state.auth.userId);
-  const commentsState = useAppSelector((state) => state.posts.comments[postId]);
+  const commentsState = useAppSelector((state) => state.comments.byPost[post]);
   const comments = commentsState?.items || [];
   const isLoading = commentsState?.isLoading || false;
   const error = commentsState?.error || null;
 
   useEffect(() => {
-    dispatch(fetchCommentsByPostId(postId));
-  }, [dispatch, postId]);
+    dispatch(fetchCommentsByPost(post));
+  }, [dispatch, post]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,11 +38,32 @@ const CommentsSection = ({ postId }: CommentsSectionProps) => {
     }
 
     try {
-      await dispatch(createComment({ postId, content: commentText, userId })).unwrap();
+      await dispatch(addComment({ postId: post, content: commentText, userId }));
       setCommentText("");
     } catch (error) {
       console.error('Error creating comment:', error);
       dispatch(showError("Failed to create comment. Please try again."));
+    }
+  };
+
+  const handleLike = async (commentId: string) => {
+    if (!userId) {
+      dispatch(showError("You must be logged in to like comments"));
+      return;
+    }
+    try {
+      await dispatch(likeComment({ postId: post, commentId, userId: userId }));
+    } catch (error) {
+      dispatch(showError("Failed to like comment"));
+    }
+  };
+
+  const handleUnlike = async (commentId: string) => {
+    if (!userId) return;
+    try {
+      await dispatch(unlikeComment({ postId: post, commentId, userId: userId }));
+    } catch (error) {
+      dispatch(showError("Failed to unlike comment"));
     }
   };
 
@@ -72,7 +93,7 @@ const CommentsSection = ({ postId }: CommentsSectionProps) => {
               <div className="flex space-x-3">
                 <div className="flex-shrink-0">
                   <img
-                    src={comment.author.profilePicture || "https://mastertondental.co.nz/wp-content/uploads/2022/12/team-profile-placeholder.jpg"}
+                    src={comment.author.profilePicture}
                     className="w-10 h-10 rounded-full bg-gray-300"
                     alt={`${comment.author.username}'s profile`}
                   />
@@ -91,6 +112,31 @@ const CommentsSection = ({ postId }: CommentsSectionProps) => {
                     </span>
                   </div>
                   <p className="mt-1 text-gray-300">{comment.content}</p>
+                  <div className="mt-2 flex items-center space-x-4">
+                    <button
+                      onClick={() => comment.likes.includes(userId || '') ? handleUnlike(comment.id) : handleLike(comment.id)}
+                      className={`flex items-center space-x-1 text-sm ${
+                        comment.likes.includes(userId || '')
+                          ? 'text-red-500 hover:text-red-600'
+                          : 'text-gray-400 hover:text-red-500'
+                      } transition-colors duration-200`}
+                    >
+                      <svg
+                        className="w-5 h-5"
+                        fill={comment.likes.includes(userId || '') ? "currentColor" : "none"}
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                        />
+                      </svg>
+                      <span>{comment.likes.length}</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

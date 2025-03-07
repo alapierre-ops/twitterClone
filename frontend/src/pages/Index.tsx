@@ -3,7 +3,7 @@ import { useAppSelector, useAppDispatch } from "../app/hooks";
 import { useEffect } from "react";
 import PostForm from "../domains/posts/components/PostForm";
 import PostList from "../domains/posts/components/PostList";
-import PostTab from "../domains/posts/components/PostTab";
+import PostTab from "../domains/posts/components/PostTab.tsx";
 import Stimulation from "../components/Stimulation.tsx";
 import { fetchPosts, fetchPostsByFollowing } from "../domains/posts/slice.ts";
 import Alerts from "../domains/alerts/components/Alerts";
