@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { login, register } from './service.ts';
-import { AuthState } from './types.ts';
+import { AuthState, LoginResponse, RegisterResponse } from './types.ts';
 
 const initialState: AuthState = {
   token: localStorage.getItem('token') || sessionStorage.getItem('token') || null,
@@ -10,9 +10,9 @@ const initialState: AuthState = {
   error: null,
 };
 
-export const loginUser = createAsyncThunk(
+export const loginUser = createAsyncThunk<LoginResponse, { email: string; password: string; remember: boolean }>(
   'auth/login',
-  async ({ email, password, remember }: { email: string; password: string; remember: boolean }) => {
+  async ({ email, password, remember }) => {
     const response = await login(email, password);
     if (remember) {
       localStorage.setItem('token', response.token);
@@ -23,16 +23,15 @@ export const loginUser = createAsyncThunk(
   }
 );
 
-export const registerUser = createAsyncThunk(
+export const registerUser = createAsyncThunk<RegisterResponse, { 
+  username: string;
+  email: string;
+  password: string;
+  secondPassword: string;
+}>(
   'auth/register',
-  async ({ username, email, password, secondPassword }: { 
-    username: string;
-    email: string;
-    password: string;
-    secondPassword: string;
-  }) => {
+  async ({ username, email, password, secondPassword }) => {
     const response = await register(username, email, password, secondPassword);
-    sessionStorage.setItem('token', response.token);
     return response;
   }
 );
@@ -70,6 +69,8 @@ const authSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action) => {
         state.isLoading = false;
         state.token = action.payload.token;
+        state.userId = action.payload.id;
+        state.username = action.payload.username;
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
@@ -81,7 +82,7 @@ const authSlice = createSlice({
       })
       .addCase(registerUser.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.token = action.payload.token;
+        state.userId = action.payload.userId;
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.isLoading = false;

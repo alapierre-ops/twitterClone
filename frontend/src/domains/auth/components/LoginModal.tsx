@@ -1,8 +1,8 @@
 import Modal from "../../../components/Modal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../slice";
-import { useAppDispatch } from "../../../app/hooks";
+import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -13,13 +13,10 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
-  const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
   const handleLogin = async () => {
-      await dispatch(loginUser({ email, password, remember }));
-      navigate("/");
-      onClose();
+    await dispatch(loginUser({ email, password, remember }));
   }
   
   return (

@@ -1,12 +1,23 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import logo from '../assets/logos/darkLogo.png';
 import SignupModal from "../domains/auth/components/SignupModal";
 import LoginModal from "../domains/auth/components/LoginModal";
 import Alerts from "../domains/alerts/components/Alerts";
+import { useAppSelector } from "../app/hooks";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
   const [isSignupOpen, setSignupOpen] = useState(false);
   const [isLoginOpen, setLoginOpen] = useState(false);
+  const token = useAppSelector((state) => state.auth.token);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    console.log("token", token);
+    if (token) {
+      navigate("/");
+    }
+  }, [token]);
 
   return (
     <div className="h-screen flex justify-center items-center bg-black">

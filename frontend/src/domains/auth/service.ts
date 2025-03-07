@@ -1,10 +1,10 @@
 import axiosInstance from "../../api/axiosConfig.ts";
-import { AuthResponse } from "./types.ts";
+import { LoginResponse, RegisterResponse } from "./types.ts";
 import { store } from "../../app/store";
 import { showError } from "../alerts/slice";
 
-export const login = async (email: string, password: string): Promise<AuthResponse> => {
-  const response = await axiosInstance.post<AuthResponse>("/users/login", { email, password });
+export const login = async (email: string, password: string): Promise<LoginResponse> => {
+  const response = await axiosInstance.post<LoginResponse>("/users/login", { email, password });
   return response.data;
 };
 
@@ -41,11 +41,11 @@ export const register = async (
   email: string,
   password: string,
   secondPassword: string
-): Promise<AuthResponse> => {
+): Promise<RegisterResponse> => {
   if (checkData(username, email, password, secondPassword) === false) {
     throw new Error("Invalid data");
   }
-  const response = await axiosInstance.post<AuthResponse>("/users/register", {
+  const response = await axiosInstance.post<RegisterResponse>("/users/register", {
     username,
     email,
     password,
