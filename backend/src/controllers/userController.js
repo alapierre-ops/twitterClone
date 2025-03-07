@@ -1,4 +1,4 @@
-import User from "../models/user.js";
+import User from "../models/users.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { verifyToken } from "../middlewares/authMiddleware.js";
@@ -73,4 +73,20 @@ export const followUser = async (req, res) => {
   await user.save();
   await userToFollow.save();
   res.json(userToFollow);
+};
+
+export const getFollowingUsers = async (req, res) => {
+  const { id } = req.params;
+  const user = await User.findById(id).select("-password");
+  if (!user) return res.status(404).json({ message: "No account found." });
+  const followingUsers = await User.find({ _id: { $in: user.following } }).select("-password");
+  res.json(followingUsers);
+};
+
+export const getFollowers = async (req, res) => {
+  const { id } = req.params;
+  const user = await User.findById(id).select("-password");
+  if (!user) return res.status(404).json({ message: "No account found." });
+  const followers = await User.find({ _id: { $in: user.followers } }).select("-password");
+  res.json(followers);
 };

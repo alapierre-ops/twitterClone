@@ -3,6 +3,8 @@ import authReducer from '../domains/auth/slice';
 import postsReducer from '../domains/posts/slice';
 import userReducer from '../domains/users/slice';
 import alertsReducer from '../domains/alerts/slice';
+import commentsReducer from '../domains/comments/slice';
+import repostsReducer from '../domains/reposts/slice';
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +12,8 @@ export const store = configureStore({
     posts: postsReducer,
     userState: userReducer,
     alerts: alertsReducer,
+    comments: commentsReducer,
+    reposts: repostsReducer,
   },
 });
 

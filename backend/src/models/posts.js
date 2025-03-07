@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import Repost from "./reposts.js";
 
 const postSchema = new mongoose.Schema({
   content: { type: String, required: true },
@@ -19,6 +20,12 @@ postSchema.pre(/^find/, function (next) {
   this.populate("author", "username profilePicture")
       .populate("comments");
   next();
+});
+
+postSchema.post("findOneAndDelete", async function (doc) {
+  if (doc) {
+    await Repost.deleteMany({ post: doc._id });
+  }
 });
 
 const Post = mongoose.model("Post", postSchema);

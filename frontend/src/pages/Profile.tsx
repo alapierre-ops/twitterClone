@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import authGuard from "../domains/auth/authGuard";
-import { useAppSelector, useAppDispatch } from "../app/hooks";
-import { useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "../app/hooks";
+import { useEffect, useState } from "react";
 import PostList from "../domains/posts/components/PostList";
 import { getUserByIdThunk } from "../domains/users/slice";
 import Stimulation from "../components/Stimulation";
@@ -11,44 +11,44 @@ import ProfileHeader from "../domains/users/components/ProfileHeader";
 import Alerts from "../domains/alerts/components/Alerts";
 import { showError } from "../domains/alerts/slice";
 
+type ProfileTab = 'posts' | 'replies' | 'likes';
+
 function Profile() {
   const { id } = useParams();
   const dispatch = useAppDispatch();
-  const userId = useAppSelector((state) => state.auth.userId);
-  const isOwnProfile = (id === userId);
-  const { user, isLoading } = useAppSelector((state) => state.userState);
-
-  const loadData = async () => {
-    if(!id) return;
-    try {
-      await dispatch(getUserByIdThunk(id));
-      await dispatch(fetchPostsByUserId(id));
-    } catch (error) {
-      dispatch(showError("Failed to load profile data"));
-    }
-  };
+  const { user } = useAppSelector((state) => state.userState);
+  const [activeTab, setActiveTab] = useState<ProfileTab>('posts');
 
   useEffect(() => {
+    const loadData = async () => {
+      if(!id) return;
+      try {
+        await dispatch(getUserByIdThunk(id));
+        await dispatch(fetchPostsByUserId(id));
+      } catch (error) {
+        dispatch(showError("Failed to load profile data"));
+      }
+    };
+
     loadData();
   }, [id, dispatch]);
 
-  if (isLoading) {
+  if (!user) {
     return <Loading fullScreen />;
   }
+
+  const handleTabChange = (tab: ProfileTab) => {
+    setActiveTab(tab);
+  };
 
   return (
     <div className="min-h-screen bg-black text-white">
       <Stimulation>
         <div className="w-2xl mx-auto">
           <Alerts />
-          <ProfileHeader 
-            user={user}
-            isOwnProfile={isOwnProfile}
-            userId={userId}
-          />
-
+          <ProfileHeader activeTab={activeTab} onTabChange={handleTabChange} />
           <div className="divide-y divide-gray-800">
-            <PostList />
+            <PostList profileTab={activeTab} userId={id} />
           </div>
         </div>
       </Stimulation>

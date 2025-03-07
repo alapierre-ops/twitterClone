@@ -1,23 +1,17 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import { UserResponse, UserState } from "./types.ts";
-import { getUserById, followUser } from "./service.ts";
+import { getUserById, followUser, getFollowingUsers, getFollowers } from "./service.ts";
 
 const initialState: UserState = {
-  user: {
-    _id: "",
-    username: "",
-    bio: "",
-    followers: [],
-    following: [],
-    createdAt: "",
-    profilePicture: "",
-  },
+  user: null,
+  following: [],
+  followers: [],
   isLoading: false,
   error: null,
 }
 
 export const getUserByIdThunk = createAsyncThunk(
-    'user/getUserById',
+    'users/getById',
     async (id: string): Promise<UserResponse> => {
         const response = await getUserById(id);
         return response;
@@ -25,21 +19,38 @@ export const getUserByIdThunk = createAsyncThunk(
 )
 
 export const followUserThunk = createAsyncThunk(
-  'user/followUser',
+  'users/follow',
   async ({ id, userId }: { id: string, userId: string }): Promise<UserResponse> => {
     const response = await followUser(id, userId);
     return response;
   }
 )
 
+export const getFollowingUsersThunk = createAsyncThunk(
+  'users/getFollowing',
+  async (userId: string): Promise<UserResponse[]> => {
+    const response = await getFollowingUsers(userId);
+    return response;
+  }
+)
+
+export const getFollowersThunk = createAsyncThunk(
+  'users/getFollowers',
+  async (userId: string): Promise<UserResponse[]> => {
+    const response = await getFollowers(userId);
+    return response;
+  }
+)
+
 const userSlice = createSlice({
-  name: 'user',
+  name: 'users',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(getUserByIdThunk.pending, (state) => {
         state.isLoading = true;
+        state.error = null;
       })
       .addCase(getUserByIdThunk.fulfilled, (state, action) => {
         state.isLoading = false;
@@ -47,18 +58,55 @@ const userSlice = createSlice({
       })
       .addCase(getUserByIdThunk.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.error.message || null;
+        state.error = action.error.message || 'Failed to fetch user';
       })
       .addCase(followUserThunk.pending, (state) => {
         state.isLoading = true;
+        state.error = null;
       })
       .addCase(followUserThunk.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.user = action.payload;
+        if (state.user?._id === action.payload._id) {
+          state.user = action.payload;
+        }
+        if (state.following.length > 0) {
+          state.following = state.following.map(user => 
+            user._id === action.payload._id ? action.payload : user
+          );
+        }
+        if (state.followers.length > 0) {
+          state.followers = state.followers.map(user => 
+            user._id === action.payload._id ? action.payload : user
+          );
+        }
       })
       .addCase(followUserThunk.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.error.message || null;
+        state.error = action.error.message || 'Failed to follow user';
+      })
+      .addCase(getFollowingUsersThunk.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(getFollowingUsersThunk.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.following = action.payload;
+      })
+      .addCase(getFollowingUsersThunk.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.error.message || 'Failed to fetch following users';
+      })
+      .addCase(getFollowersThunk.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(getFollowersThunk.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.followers = action.payload;
+      })
+      .addCase(getFollowersThunk.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.error.message || 'Failed to fetch followers';
       });
   },
 });
