@@ -18,10 +18,13 @@ export const getFollowingUsers = async (userId: string): Promise<UserResponse[]>
 
 export const getFollowers = async (userId: string): Promise<UserResponse[]> => {
   const response = await axiosInstance.get<UserResponse[]>(`/users/${userId}/followers`);
+<<<<<<< HEAD
   return response.data;
 };
 
 export const updateUser = async (userId: string, userData: UpdateUserRequest): Promise<UserResponse> => {
   const response = await axiosInstance.put<UserResponse>(`/users/${userId}`, userData);
+=======
+>>>>>>> 69f1894c920f031fa5231aee00f0e619f8995601
   return response.data;
 };

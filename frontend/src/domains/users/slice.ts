@@ -1,6 +1,11 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
+<<<<<<< HEAD
 import { UserResponse, UserState, UpdateUserRequest } from "./types.ts";
 import { getUserById, followUser, getFollowingUsers, getFollowers, updateUser } from "./service.ts";
+=======
+import { UserResponse, UserState } from "./types.ts";
+import { getUserById, followUser, getFollowingUsers, getFollowers } from "./service.ts";
+>>>>>>> 69f1894c920f031fa5231aee00f0e619f8995601
 
 const initialState: UserState = {
   user: null,
@@ -42,6 +47,7 @@ export const getFollowersThunk = createAsyncThunk(
   }
 )
 
+<<<<<<< HEAD
 export const updateUserThunk = createAsyncThunk(
   'users/update',
   async ({ userId, userData }: { userId: string, userData: UpdateUserRequest }): Promise<UserResponse> => {
@@ -50,6 +56,8 @@ export const updateUserThunk = createAsyncThunk(
   }
 )
 
+=======
+>>>>>>> 69f1894c920f031fa5231aee00f0e619f8995601
 const userSlice = createSlice({
   name: 'users',
   initialState,
@@ -115,6 +123,7 @@ const userSlice = createSlice({
       .addCase(getFollowersThunk.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message || 'Failed to fetch followers';
+<<<<<<< HEAD
       })      
       .addCase(updateUserThunk.pending, (state) => {
         state.isLoading = true;
@@ -127,6 +136,8 @@ const userSlice = createSlice({
       .addCase(updateUserThunk.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message || 'Failed to update user';
+=======
+>>>>>>> 69f1894c920f031fa5231aee00f0e619f8995601
       });
   },
 });

@@ -27,10 +27,13 @@ export interface RegisterRequest {
   username: string;
   email: string;
   password: string;
+<<<<<<< HEAD
 }
 
 export interface UpdateUserRequest {
   username?: string;
   bio?: string;
   profilePicture?: string;
+=======
+>>>>>>> 69f1894c920f031fa5231aee00f0e619f8995601
 }
