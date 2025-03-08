@@ -11,8 +11,7 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (request) => {
-    console.log("Request:", request.url);
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
     if (token) {
       request.headers.Authorization = `Bearer ${token}`;
     }
@@ -25,10 +24,7 @@ axiosInstance.interceptors.request.use(
 );
 
 axiosInstance.interceptors.response.use(
-  (response) => {
-    console.log("Response:", response.config.url, response.status);
-    return response;
-  },
+  (response) => response,
   async (error) => {
     console.error("Response Error:", error.response?.status, error.response?.data);
     const dispatch = store.dispatch;
@@ -37,6 +33,8 @@ axiosInstance.interceptors.response.use(
       console.log("Unauthorized, clearing tokens");
       localStorage.removeItem("token");
       sessionStorage.removeItem("token");
+
+      // 401 can also be because of incorrect credentials, in that case we don't want to refresh the page
       if(window.location.pathname !== '/login'){
         window.location.href = "/login";
       }

@@ -56,13 +56,23 @@ export const getPosts = async (req, res) => {
 
     if (tab === 'trending') {
       const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
-      const trendingPosts = await Post.find({
-        createdAt: { $gte: threeDaysAgo }
-      })
-      .populate('author', 'username profilePicture')
-      .sort({ likes: -1 });
+      const trendingPosts = await Post.aggregate([
+        { $match: { createdAt: { $gte: threeDaysAgo } } },
+        { $addFields: { likesCount: { $size: "$likes" } } },
+        { $sort: { likesCount: -1 } },
+    ]);
 
-      const formattedPosts = trendingPosts.map(formatPost);
+      const populatedTrendingPosts = await Post.populate(trendingPosts, {
+          path: "author",
+          select: "username profilePicture"
+      });
+
+      populatedTrendingPosts.forEach(post => {
+          console.log("post likes", post.likes.length);
+      });
+
+      const formattedPosts = populatedTrendingPosts.map(formatPost);
+
       return res.status(200).json(formattedPosts);
     }
 
@@ -85,6 +95,7 @@ export const getPosts = async (req, res) => {
 
     const combined = [...formattedPosts, ...formattedReposts]
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    
     res.status(200).json(combined);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -161,6 +172,7 @@ export const getPostsByUserId = async (req, res) => {
 export const getPostsByFollowing = async (req, res) => {
   try {
     const { userId } = req.params;
+
     const user = await User.findById(userId);
     
     if (!user) {
@@ -184,11 +196,16 @@ export const getPostsByFollowing = async (req, res) => {
         .sort({ createdAt: -1 })
     ]);
 
+    console.log("posts", posts);
+    console.log("reposts", reposts);
+
     const formattedPosts = posts.map(formatPost);
     const formattedReposts = reposts.map(formatRepost);
 
     const combined = [...formattedPosts, ...formattedReposts]
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    console.log("combined", combined);
 
     res.status(200).json(combined);
   } catch (error) {

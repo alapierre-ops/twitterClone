@@ -31,6 +31,10 @@ const PostList = ({ profileTab, userId }: PostListProps) => {
     }
   }, [dispatch, profileTab, userId]);
 
+  useEffect(() => {
+    console.log("posts", posts);
+  }, [posts]);
+
   if (isLoading) {
     return <Loading />;
   }
