@@ -2,6 +2,7 @@ import Post from "../models/posts.js";
 import User from "../models/users.js";
 import Repost from "../models/reposts.js";
 import Comment from "../models/comments.js";
+import Notification from "../models/notifications.js";
 
 const formatRepost = (repost) => ({
   id: repost._id,
@@ -39,6 +40,22 @@ export const addLike = async (req, res) => {
   const post = await Post.findById(postId);
   post.likes.push(userId);
   await post.save();
+
+  const postInfo = await Post.findById(postId);
+  if (!postInfo) {
+    return res.status(404).json({ message: "Post not found" });
+  }
+
+  if (postInfo.author._id.toString() !== userId.toString()) {
+    const notification = new Notification({
+      recipient: postInfo.author._id,
+      sender: userId,
+      type: 'like',
+      post: postId
+    });
+    await notification.save();
+  }
+
   res.status(200).json(post);
 };
 
@@ -215,22 +232,6 @@ export const deletePost = async (req, res) => {
   const { id } = req.params;
   await Post.findByIdAndDelete(id);
   res.status(200).json({ message: "Post deleted" });
-};
-
-export const likePost = async (req, res) => {
-  const { id } = req.params;
-  const post = await Post.findById(id);
-  post.likes.push(req.user._id);
-  await post.save();
-  res.status(200).json(post);
-};
-
-export const unlikePost = async (req, res) => {
-  const { id } = req.params;
-  const post = await Post.findById(id);
-  post.likes = post.likes.filter(like => like.toString() !== req.user._id.toString());
-  await post.save();
-  res.status(200).json(post);
 };
 
 export const getLikedPostsByUserId = async (req, res) => {

@@ -2,6 +2,7 @@ import User from "../models/users.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { verifyToken } from "../middlewares/authMiddleware.js";
+import Notification from "../models/notifications.js";
 
 export const registerUser = async (req, res) => {
   const { username, email, password } = req.body;
@@ -69,9 +70,17 @@ export const followUser = async (req, res) => {
   else{
     user.following.push(userToFollow._id);
     userToFollow.followers.push(user._id);
+
+    const notification = new Notification({
+      recipient: userId,
+      sender: id,
+      type: 'follow'
+    });
+    await notification.save();
   }
   await user.save();
   await userToFollow.save();
+
   res.json(userToFollow);
 };
 

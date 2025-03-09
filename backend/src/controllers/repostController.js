@@ -52,7 +52,7 @@ export const createRepost = async (req, res) => {
 
     const response = formatRepost(populatedRepost);
 
-    if (post.author.toString() !== userId) {
+    if (post.author.userId !== userId) {
       const notification = new Notification({
         recipient: post.author,
         sender: userId,

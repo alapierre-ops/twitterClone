@@ -36,21 +36,6 @@ const formatNotification = async (notification) => {
   };
 };
 
-export const createNotification = async (data) => {
-  try {
-    if (data.sender.toString() === data.recipient.toString()) {
-      return null;
-    }
-    
-    const notification = new Notification(data);
-    await notification.save();
-    return notification;
-  } catch (error) {
-    console.error('Error creating notification:', error);
-    return null;
-  }
-};
-
 export const getNotifications = async (req, res) => {
   try {
     const userId = req.user.id;
