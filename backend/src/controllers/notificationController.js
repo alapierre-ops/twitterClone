@@ -38,24 +38,20 @@ const formatNotification = async (notification) => {
 
 export const getNotifications = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user.userId;
 
     const notifications = await Notification.find({ recipient: userId })
       .sort({ createdAt: -1 });
+
+    console.log(notifications);
 
     const formattedNotifications = await Promise.all(
       notifications.map(notification => formatNotification(notification))
     );
 
-    const unreadCount = await Notification.countDocuments({ 
-      recipient: userId,
-      read: false
-    });
+    console.log(formattedNotifications);
 
-    res.status(200).json({
-      notifications: formattedNotifications,
-      unreadCount
-    });
+    res.status(200).json(formattedNotifications);
   } catch (error) {
     console.error('Error getting notifications:', error);
     res.status(500).json({ message: 'Server error' });
@@ -109,8 +105,6 @@ export const getUnreadCount = async (req, res) => {
       recipient: userId,
       read: false
     });
-
-    console.log("You have", count, "unread notifications")
 
     res.status(200).json({ count });
   } catch (error) {

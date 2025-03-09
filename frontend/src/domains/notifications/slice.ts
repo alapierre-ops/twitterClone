@@ -82,8 +82,7 @@ const notificationsSlice = createSlice({
       })
       .addCase(fetchNotifications.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.notifications = action.payload.notifications;
-        state.unreadCount = action.payload.unreadCount;
+        state.notifications = action.payload;
       })
       .addCase(fetchNotifications.rejected, (state, action) => {
         state.isLoading = false;
@@ -91,7 +90,6 @@ const notificationsSlice = createSlice({
       })      
       .addCase(fetchUnreadCount.fulfilled, (state, action) => {
         state.unreadCount = action.payload;
-        console.log("You have", state.unreadCount, "unread notifications")
       })
       .addCase(markNotificationAsRead.fulfilled, (state, action) => {
         const updatedNotification = action.payload;
