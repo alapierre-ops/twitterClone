@@ -6,6 +6,7 @@ import { Comment } from "../../posts/types";
 import Loading from "../../../components/Loading";
 import { showError } from "../../alerts/slice";
 import authGuard from "../../auth/authGuard";
+import { formatNumber, formatRelativeTime } from "../../../utils/formatters";
 
 interface CommentsSectionProps {
   post: string;
@@ -108,7 +109,7 @@ const CommentsSection = ({ post }: CommentsSectionProps) => {
                     </h4>
                     <span className="text-sm text-gray-500">·</span>
                     <span className="text-sm text-gray-500">
-                      {new Date(comment.createdAt).toLocaleDateString()}
+                      {formatRelativeTime(comment.createdAt)}
                     </span>
                   </div>
                   <p className="mt-1 text-gray-300">{comment.content}</p>
@@ -134,7 +135,7 @@ const CommentsSection = ({ post }: CommentsSectionProps) => {
                           d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
                         />
                       </svg>
-                      <span>{comment.likes.length}</span>
+                      <span>{formatNumber(comment.likes.length)}</span>
                     </button>
                   </div>
                 </div>

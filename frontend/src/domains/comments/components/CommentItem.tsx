@@ -5,6 +5,7 @@ import { CommentItemProps } from "../types";
 import { likeComment, unlikeComment, updateComment, deleteComment } from "../slice";
 import { showError, showSuccess } from "../../alerts/slice";
 import { Menu, MenuItem } from "@mui/material";
+import { formatNumber, formatRelativeTime } from "../../../utils/formatters";
 
 const CommentItem = ({ comment, userId }: CommentItemProps) => {
   const navigate = useNavigate();
@@ -87,7 +88,7 @@ const CommentItem = ({ comment, userId }: CommentItemProps) => {
               </h4>
               <span className="text-sm text-gray-500">·</span>
               <span className="text-sm text-gray-500">
-                {new Date(comment.createdAt).toLocaleDateString()}
+                {formatRelativeTime(comment.createdAt)}
               </span>
             </div>
             {isAuthor && (
@@ -157,7 +158,7 @@ const CommentItem = ({ comment, userId }: CommentItemProps) => {
                   d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
                 />
               </svg>
-              <span>{comment.likes.length}</span>
+              <span>{formatNumber(comment.likes.length)}</span>
             </button>
           </div>
         </div>

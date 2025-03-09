@@ -7,6 +7,7 @@ import { Menu, MenuItem, Dialog, DialogTitle, DialogActions, Button } from "@mui
 import { useEffect, useState } from "react";
 import { addRepost, getRepostsCount, removeRepost } from "../../reposts/slice";
 import Loading from "../../../components/Loading";
+import { formatNumber, formatRelativeTime } from "../../../utils/formatters";
 
 interface PostContentProps {
   post: RegularPost;
@@ -126,8 +127,8 @@ const PostOnCommentTab = ({ post }: PostContentProps) => {
                 {post.author.username}
               </h2>
               <span className="text-gray-500">·</span>
-              <span className="text-gray-500">
-                {new Date(post.createdAt).toLocaleDateString()}
+              <span className="text-sm text-gray-500">
+                {formatRelativeTime(post.createdAt)}
               </span>
             </div>
             {isAuthor && (
@@ -189,7 +190,7 @@ const PostOnCommentTab = ({ post }: PostContentProps) => {
                   d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
                 />
               </svg>
-              <span>{post.likes?.length}</span>
+              <span>{formatNumber(post.likes?.length)}</span>
             </button>
             <button
               onClick={() => {
@@ -205,7 +206,7 @@ const PostOnCommentTab = ({ post }: PostContentProps) => {
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
               </svg>
-              <span>{repostsCount}</span>
+              <span>{formatNumber(repostsCount)}</span>
             </button>
             <div className="flex items-center space-x-2 text-gray-400">
               <svg
@@ -221,7 +222,7 @@ const PostOnCommentTab = ({ post }: PostContentProps) => {
                   d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
                 />
               </svg>
-              <span>{commentsCount}</span>
+              <span>{formatNumber(commentsCount)}</span>
             </div>
           </div>
         </div>
