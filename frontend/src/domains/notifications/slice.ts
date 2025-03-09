@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { NotificationState, Notification } from './types.ts';
+import { NotificationState } from './types.ts';
 import * as notificationService from './service.ts';
 
 const initialState: NotificationState = {
