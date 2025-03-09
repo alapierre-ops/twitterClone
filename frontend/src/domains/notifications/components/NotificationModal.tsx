@@ -6,6 +6,7 @@ import {
   markAllNotificationsAsRead 
 } from '../slice';
 import { Notification } from '../types';
+import { formatRelativeTime } from '../../../utils/formatters';
 
 interface NotificationModalProps {
   isOpen: boolean;
@@ -20,18 +21,6 @@ const NotificationModal: React.FC<NotificationModalProps> = ({ isOpen, onClose }
     error: state.notifications?.error || null
   }));
 
-  // Format the timestamp to a readable format
-  const formatTimestamp = (timestamp: string) => {
-    const date = new Date(timestamp);
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  // Get icon based on notification type
   const getNotificationIcon = (type: Notification['type']) => {
     switch (type) {
       case 'like':
@@ -72,7 +61,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({ isOpen, onClose }
   };
 
   const handleRefresh = () => {
-    dispatch(fetchNotifications({ page: 1, limit: 20 }));
+    dispatch(fetchNotifications());
   };
 
   if (!isOpen) return null;
@@ -132,7 +121,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({ isOpen, onClose }
                         )}
                       </div>
                       <p className="text-sm text-gray-500 mt-1">
-                        {formatTimestamp(notification.timestamp)}
+                        {formatRelativeTime(notification.timestamp)}
                       </p>
                     </div>
                     <div className="flex-shrink-0">

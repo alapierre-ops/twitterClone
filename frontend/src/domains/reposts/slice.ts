@@ -22,7 +22,6 @@ export const removeRepost = createAsyncThunk(
   'reposts/removeRepost',
   async ({ postId, authorId }: { postId: string, authorId: string }) => {
     const response = await deleteRepost(postId, authorId);
-    console.log("id removed", response);
     return response;
   }
 );

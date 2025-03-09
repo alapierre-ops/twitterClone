@@ -11,33 +11,14 @@ export interface Notification {
   commentId?: string;
 }
 
-export interface NotificationsState {
+export interface NotificationState {
   notifications: Notification[];
   unreadCount: number;
   isLoading: boolean;
   error: string | null;
 }
 
-export interface GetNotificationsResponse {
+export interface NotificationResponse {
   notifications: Notification[];
   unreadCount: number;
-  page: number;
-  hasMore: boolean;
 }
-
-export interface MarkAsReadResponse {
-  id: string;
-  read: boolean;
-}
-
-export interface MarkAllAsReadResponse {
-  message: string;
-}
-
-export interface GetUnreadCountResponse {
-  count: number;
-}
-
-export interface DeleteNotificationResponse {
-  message: string;
-} 

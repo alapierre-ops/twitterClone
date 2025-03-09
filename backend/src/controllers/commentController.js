@@ -2,9 +2,6 @@ import Comment from "../models/comments.js";
 
 export const createComment = async (req, res) => {
   const { content, post, author } = req.body;
-  console.log("content", content);
-  console.log("post", post);
-  console.log("author", author);
   const comment = await Comment.create({ content, author, post });
   res.status(201).json(comment);
 };

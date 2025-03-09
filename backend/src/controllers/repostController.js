@@ -1,6 +1,7 @@
 import Repost from "../models/reposts.js";
 import Post from "../models/posts.js";
 import User from "../models/users.js";
+import Notification from "../models/notifications.js";
 
 const formatRepost = (repost) => ({
   id: repost._id,
@@ -30,6 +31,11 @@ export const createRepost = async (req, res) => {
       return res.status(400).json({ message: "You have already reposted this post" });
     }
 
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
     const repost = await Repost.create({ post: postId, user: userId });
     const populatedRepost = await Repost.findById(repost._id)
       .populate({
@@ -45,6 +51,16 @@ export const createRepost = async (req, res) => {
       });
 
     const response = formatRepost(populatedRepost);
+
+    if (post.author.toString() !== userId) {
+      const notification = new Notification({
+        recipient: post.author,
+        sender: userId,
+        type: 'repost',
+        post: postId
+      });
+      await notification.save();
+    }
 
     res.status(201).json(response);
   } catch (error) {

@@ -6,6 +6,7 @@ import userRoutes from "./routes/userRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
 import commentRoutes from "./routes/commentRoutes.js";
 import repostRoutes from "./routes/repostRoutes.js";
+import notificationRoutes from "./routes/notificationRoutes.js"
 
 dotenv.config();
 const app = express();
@@ -17,6 +18,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/reposts", repostRoutes);
+app.use("/api/notifications", notificationRoutes)
 
 const PORT = process.env.PORT || 5000;
 

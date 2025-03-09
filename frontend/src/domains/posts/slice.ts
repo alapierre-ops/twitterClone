@@ -278,7 +278,6 @@ const postSlice = createSlice({
       })
       .addCase(fetchPostsByFollowing.fulfilled, (state, action) => {
         state.isLoading = false;
-        console.log("action.payload", action.payload);
         state.posts = action.payload;
       })
       .addCase(fetchPostsByFollowing.rejected, (state, action) => {

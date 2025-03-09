@@ -1,113 +1,81 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { 
-  NotificationsState, 
-  Notification,
-  GetNotificationsResponse,
-  MarkAsReadResponse,
-  MarkAllAsReadResponse,
-  GetUnreadCountResponse
-} from './types';
-import * as notificationService from './service';
-import { RootState } from '../../app/store';
+import { NotificationState, Notification } from './types.ts';
+import * as notificationService from './service.ts';
 
-// Initial state
-const initialState: NotificationsState = {
+const initialState: NotificationState = {
   notifications: [],
   unreadCount: 0,
   isLoading: false,
-  error: null
+  error: null,
 };
 
-// Async thunks
-export const fetchNotifications = createAsyncThunk<
-  GetNotificationsResponse,
-  { page?: number; limit?: number },
-  { state: RootState }
->(
+export const fetchNotifications = createAsyncThunk(
   'notifications/fetchNotifications',
-  async ({ page = 1, limit = 20 }, { getState }) => {
-    const token = getState().auth.token;
-    if (!token) {
-      throw new Error('No authentication token found');
+  async () => {
+    try {
+      return await notificationService.getNotifications();
+    } catch (error: any) {
+      return (error.response?.data?.message || 'Failed to fetch notifications');
     }
-    return await notificationService.getNotifications(token, page, limit);
   }
 );
 
-export const markNotificationAsRead = createAsyncThunk<
-  MarkAsReadResponse,
-  string,
-  { state: RootState }
->(
-  'notifications/markAsRead',
-  async (id, { getState }) => {
-    const token = getState().auth.token;
-    if (!token) {
-      throw new Error('No authentication token found');
-    }
-    return await notificationService.markAsRead(token, id);
-  }
-);
-
-export const markAllNotificationsAsRead = createAsyncThunk<
-  MarkAllAsReadResponse,
-  void,
-  { state: RootState }
->(
-  'notifications/markAllAsRead',
-  async (_, { getState }) => {
-    const token = getState().auth.token;
-    if (!token) {
-      throw new Error('No authentication token found');
-    }
-    return await notificationService.markAllAsRead(token);
-  }
-);
-
-export const fetchUnreadCount = createAsyncThunk<
-  GetUnreadCountResponse,
-  void,
-  { state: RootState }
->(
+export const fetchUnreadCount = createAsyncThunk(
   'notifications/fetchUnreadCount',
-  async (_, { getState }) => {
-    const token = getState().auth.token;
-    if (!token) {
-      throw new Error('No authentication token found');
+  async () => {
+    try {
+      return await notificationService.getUnreadCount();
+    } catch (error: any) {
+      return (error.response?.data?.message || 'Failed to fetch unread count');
     }
-    return await notificationService.getUnreadCount(token);
   }
 );
 
-export const deleteNotification = createAsyncThunk<
-  { id: string },
-  string,
-  { state: RootState }
->(
-  'notifications/deleteNotification',
-  async (id, { getState }) => {
-    const token = getState().auth.token;
-    if (!token) {
-      throw new Error('No authentication token found');
+export const markNotificationAsRead = createAsyncThunk(
+  'notifications/markAsRead',
+  async (id: string) => {
+    try {
+      return await notificationService.markAsRead(id);
+    } catch (error: any) {
+      return (error.response?.data?.message || 'Failed to mark notification as read');
     }
-    await notificationService.deleteNotification(token, id);
-    return { id };
   }
 );
 
-// Slice
+export const markAllNotificationsAsRead = createAsyncThunk(
+  'notifications/markAllAsRead',
+  async () => {
+    try {
+      await notificationService.markAllAsRead();
+      return true;
+    } catch (error: any) {
+      return (error.response?.data?.message || 'Failed to mark all notifications as read');
+    }
+  }
+);
+
+export const removeNotification = createAsyncThunk(
+  'notifications/removeNotification',
+  async (id: string) => {
+    try {
+      await notificationService.deleteNotification(id);
+      return id;
+    } catch (error: any) {
+      return (error.response?.data?.message || 'Failed to delete notification');
+    }
+  }
+);
+
 const notificationsSlice = createSlice({
   name: 'notifications',
   initialState,
   reducers: {
-    clearNotifications: (state) => {
+    resetNotifications: (state) => {
       state.notifications = [];
-      state.unreadCount = 0;
     },
   },
   extraReducers: (builder) => {
     builder
-      // Fetch notifications
       .addCase(fetchNotifications.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -119,20 +87,19 @@ const notificationsSlice = createSlice({
       })
       .addCase(fetchNotifications.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.error.message || 'Failed to fetch notifications';
+        state.error = action.payload as string;
+      })      
+      .addCase(fetchUnreadCount.fulfilled, (state, action) => {
+        state.unreadCount = action.payload;
+        console.log("You have", state.unreadCount, "unread notifications")
       })
-      
-      // Mark as read
       .addCase(markNotificationAsRead.fulfilled, (state, action) => {
-        const notificationId = action.payload.id;
-        const index = state.notifications.findIndex(n => n.id === notificationId);
-        if (index !== -1) {
-          state.notifications[index].read = true;
-        }
+        const updatedNotification = action.payload;
+        state.notifications = state.notifications.map(notification => 
+          notification.id === updatedNotification.id ? updatedNotification : notification
+        );
         state.unreadCount = Math.max(0, state.unreadCount - 1);
       })
-      
-      // Mark all as read
       .addCase(markAllNotificationsAsRead.fulfilled, (state) => {
         state.notifications = state.notifications.map(notification => ({
           ...notification,
@@ -140,24 +107,17 @@ const notificationsSlice = createSlice({
         }));
         state.unreadCount = 0;
       })
-      
-      // Fetch unread count
-      .addCase(fetchUnreadCount.fulfilled, (state, action) => {
-        state.unreadCount = action.payload.count;
-      })
-      
-      // Delete notification
-      .addCase(deleteNotification.fulfilled, (state, action) => {
-        const { id } = action.payload;
-        const notification = state.notifications.find(n => n.id === id);
-        state.notifications = state.notifications.filter(n => n.id !== id);
-        if (notification && !notification.read) {
+      .addCase(removeNotification.fulfilled, (state, action) => {
+        const notificationId = action.payload;
+        const removedNotification = state.notifications.find(n => n.id === notificationId);
+        state.notifications = state.notifications.filter(notification => notification.id !== notificationId);
+        
+        if (removedNotification && !removedNotification.read) {
           state.unreadCount = Math.max(0, state.unreadCount - 1);
         }
       });
   }
 });
 
-export const { clearNotifications } = notificationsSlice.actions;
-
-export default notificationsSlice.reducer; 
+export const { resetNotifications } = notificationsSlice.actions;
+export default notificationsSlice.reducer;

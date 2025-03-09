@@ -13,26 +13,21 @@ const NotificationButton: React.FC = () => {
   }));
   const isLoggedIn = useAppSelector(state => !!state.auth.userId);
 
-  // Fetch notifications periodically
   useEffect(() => {
     if (isLoggedIn) {
-      // Initial fetch
       dispatch(fetchUnreadCount());
       
-      // Set up polling every 30 seconds
       const intervalId = setInterval(() => {
         dispatch(fetchUnreadCount());
       }, 30000);
       
-      // Clean up on unmount
       return () => clearInterval(intervalId);
     }
   }, [dispatch, isLoggedIn]);
 
   const toggleModal = () => {
     if (!isModalOpen && isLoggedIn) {
-      // Fetch full notifications when opening the modal
-      dispatch(fetchNotifications({ page: 1, limit: 20 }));
+      dispatch(fetchNotifications());
     }
     setIsModalOpen(!isModalOpen);
   };

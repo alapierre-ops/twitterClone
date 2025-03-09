@@ -54,14 +54,9 @@ export const createNotification = async (data) => {
 export const getNotifications = async (req, res) => {
   try {
     const userId = req.user.id;
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
-    const skip = (page - 1) * limit;
 
     const notifications = await Notification.find({ recipient: userId })
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit);
+      .sort({ createdAt: -1 });
 
     const formattedNotifications = await Promise.all(
       notifications.map(notification => formatNotification(notification))
@@ -74,9 +69,7 @@ export const getNotifications = async (req, res) => {
 
     res.status(200).json({
       notifications: formattedNotifications,
-      unreadCount,
-      page,
-      hasMore: notifications.length === limit
+      unreadCount
     });
   } catch (error) {
     console.error('Error getting notifications:', error);
@@ -125,12 +118,14 @@ export const markAllAsRead = async (req, res) => {
 
 export const getUnreadCount = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user.userId;
 
     const count = await Notification.countDocuments({
       recipient: userId,
       read: false
     });
+
+    console.log("You have", count, "unread notifications")
 
     res.status(200).json({ count });
   } catch (error) {
@@ -142,7 +137,7 @@ export const getUnreadCount = async (req, res) => {
 export const deleteNotification = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.user.id;
+    const userId = req.user.userId;
 
     const notification = await Notification.findOneAndDelete({
       _id: id,

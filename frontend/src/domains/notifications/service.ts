@@ -1,75 +1,27 @@
-import axios from 'axios';
-import { 
-  GetNotificationsResponse, 
-  MarkAsReadResponse, 
-  MarkAllAsReadResponse,
-  GetUnreadCountResponse,
-  DeleteNotificationResponse
-} from './types';
+import axiosInstance from "../../api/axiosConfig.ts";
+import { Notification, NotificationResponse } from "./types.ts";
 
-const API_URL = 'http://localhost:5000'; // Replace with your actual API URL
-
-export const getNotifications = async (token: string, page: number = 1, limit: number = 20): Promise<GetNotificationsResponse> => {
-  try {
-    const response = await axios.get(`${API_URL}/api/notifications?page=${page}&limit=${limit}`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+export const getNotifications = async () => {
+  const response = await axiosInstance.get<NotificationResponse>(`/notifications`);
+  return response.data;
 };
 
-export const markAsRead = async (token: string, id: string): Promise<MarkAsReadResponse> => {
-  try {
-    const response = await axios.put(`${API_URL}/api/notifications/${id}/read`, {}, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+export const getUnreadCount = async () => {
+  const response = await axiosInstance.get<{ count: number }>('/notifications/unread-count');
+  return response.data.count;
 };
 
-export const markAllAsRead = async (token: string): Promise<MarkAllAsReadResponse> => {
-  try {
-    const response = await axios.put(`${API_URL}/api/notifications/read-all`, {}, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+export const markAsRead = async (id: string): Promise<Notification> => {
+  const response = await axiosInstance.put<Notification>(`/notifications/${id}/read`);
+  return response.data;
 };
 
-export const getUnreadCount = async (token: string): Promise<GetUnreadCountResponse> => {
-  try {
-    const response = await axios.get(`${API_URL}/api/notifications/unread-count`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+export const markAllAsRead = async (): Promise<{ message: string }> => {
+  const response = await axiosInstance.put<{ message: string }>('/notifications/read-all');
+  return response.data;
 };
 
-export const deleteNotification = async (token: string, id: string): Promise<DeleteNotificationResponse> => {
-  try {
-    const response = await axios.delete(`${API_URL}/api/notifications/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-}; 
+export const deleteNotification = async (id: string): Promise<{ message: string }> => {
+  const response = await axiosInstance.delete<{ message: string }>(`/notifications/${id}`);
+  return response.data;
+};

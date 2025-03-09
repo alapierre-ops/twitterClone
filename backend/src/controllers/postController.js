@@ -67,10 +67,6 @@ export const getPosts = async (req, res) => {
           select: "username profilePicture"
       });
 
-      populatedTrendingPosts.forEach(post => {
-          console.log("post likes", post.likes.length);
-      });
-
       const formattedPosts = populatedTrendingPosts.map(formatPost);
 
       return res.status(200).json(formattedPosts);
@@ -196,16 +192,11 @@ export const getPostsByFollowing = async (req, res) => {
         .sort({ createdAt: -1 })
     ]);
 
-    console.log("posts", posts);
-    console.log("reposts", reposts);
-
     const formattedPosts = posts.map(formatPost);
     const formattedReposts = reposts.map(formatRepost);
 
     const combined = [...formattedPosts, ...formattedReposts]
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-    console.log("combined", combined);
 
     res.status(200).json(combined);
   } catch (error) {
