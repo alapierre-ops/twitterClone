@@ -38,9 +38,26 @@ export const updateComment = async (req, res) => {
 };
 
 export const deleteComment = async (req, res) => {
-  const { id } = req.params;
-  await Comment.findByIdAndDelete(id);
-  res.status(200).json({ message: "Comment deleted" });
+  try {
+    const { id } = req.params;
+    const comment = await Comment.findById(id);
+    
+    if (!comment) {
+      return res.status(404).json({ message: "Comment not found" });
+    }
+    
+    const post = await Post.findById(comment.post);
+    
+    if (post && post.author._id.toString() !== comment.author.toString()) {
+      // Delete the comment notification
+    }
+    
+    await Comment.findByIdAndDelete(id);
+    res.status(200).json({ message: "Comment deleted" });
+  } catch (error) {
+    console.error('Error deleting comment:', error);
+    res.status(500).json({ message: "Server error" });
+  }
 };
 
 export const likeComment = async (req, res) => {
@@ -77,11 +94,26 @@ export const likeComment = async (req, res) => {
 };
 
 export const unlikeComment = async (req, res) => {
-  const { id, userId } = req.params;
-  const comment = await Comment.findById(id);
-  comment.likes = comment.likes.filter(like => like.toString() !== userId.toString());
-  await comment.save();
-  res.status(200).json(comment);
+  try {
+    const { id, userId } = req.params;
+    const comment = await Comment.findById(id);
+    
+    if (!comment) {
+      return res.status(404).json({ message: "Comment not found" });
+    }
+
+    comment.likes = comment.likes.filter(like => like.toString() !== userId.toString());
+    await comment.save();
+    
+    if (comment.author.toString() !== userId) {
+      // Delete the like notification when unliking a comment
+    }
+    
+    res.status(200).json(comment);
+  } catch (error) {
+    console.error('Error unliking comment:', error);
+    res.status(500).json({ message: "Server error" });
+  }
 };
 
 export const getCommentsCountByPost = async (req, res) => {

@@ -2,8 +2,13 @@ import { useState, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import { fetchNotifications, fetchUnreadCount } from '../slice';
 import NotificationModal from './NotificationModal';
+import { NavigateFunction } from 'react-router-dom';
 
-const NotificationButton: React.FC = () => {
+interface NotificationButtonProps {
+  navigate: NavigateFunction;
+}
+
+const NotificationButton: React.FC<NotificationButtonProps> = ({ navigate }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const dispatch = useAppDispatch();
   
@@ -65,7 +70,7 @@ const NotificationButton: React.FC = () => {
         )}
       </button>
 
-      <NotificationModal isOpen={isModalOpen} onClose={toggleModal} />
+      <NotificationModal isOpen={isModalOpen} onClose={toggleModal} navigate={navigate} />
     </>
   );
 };

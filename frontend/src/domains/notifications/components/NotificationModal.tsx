@@ -1,4 +1,5 @@
 import React from 'react';
+import { NavigateFunction } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import { 
   fetchNotifications, 
@@ -11,9 +12,10 @@ import { formatRelativeTime } from '../../../utils/formatters';
 interface NotificationModalProps {
   isOpen: boolean;
   onClose: () => void;
+  navigate: NavigateFunction;
 }
 
-const NotificationModal: React.FC<NotificationModalProps> = ({ isOpen, onClose }) => {
+const NotificationModal: React.FC<NotificationModalProps> = ({ isOpen, onClose, navigate }) => {
   const dispatch = useAppDispatch();
   const { notifications, isLoading, error } = useAppSelector(state => ({
     notifications: state.notifications?.notifications || [],
@@ -52,16 +54,38 @@ const NotificationModal: React.FC<NotificationModalProps> = ({ isOpen, onClose }
     }
   };
 
-  const handleMarkAsRead = (id: string) => {
-    dispatch(markNotificationAsRead(id));
-  };
-
   const handleMarkAllAsRead = () => {
     dispatch(markAllNotificationsAsRead());
   };
 
   const handleRefresh = () => {
     dispatch(fetchNotifications());
+  };
+
+  const handleNotificationClick = (notification: Notification) => {
+    console.log("notification", notification);
+    dispatch(markNotificationAsRead(notification.id));
+    
+    switch (notification.type) {
+      case 'like':
+        navigate(`/post/${notification.postId}`);
+        break;
+      case 'comment':
+        navigate(`/post/${notification.postId}`);
+        break;
+      case 'repost':
+        if (notification.postId) {
+          navigate(`/post/${notification.postId}`);
+        }
+        break;
+      case 'follow':
+        navigate(`/profile/${notification.userId}`);
+        break;
+      default:
+        break;
+    }
+    
+    onClose();
   };
 
   if (!isOpen) return null;
@@ -103,8 +127,8 @@ const NotificationModal: React.FC<NotificationModalProps> = ({ isOpen, onClose }
               {notifications.map((notification: Notification) => (
                 <li 
                   key={notification.id} 
-                  className={`p-4 hover:bg-gray-800 transition-colors duration-150 ${!notification.read ? 'bg-gray-800 bg-opacity-50' : ''}`}
-                  onClick={() => handleMarkAsRead(notification.id)}
+                  className={`p-4 hover:bg-gray-800 transition-colors duration-150 cursor-pointer ${!notification.read ? 'bg-gray-800 bg-opacity-50' : ''}`}
+                  onClick={() => handleNotificationClick(notification)}
                 >
                   <div className="flex items-start space-x-3">
                     <img 

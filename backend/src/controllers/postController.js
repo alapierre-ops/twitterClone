@@ -60,11 +60,26 @@ export const addLike = async (req, res) => {
 };
 
 export const removeLike = async (req, res) => {
-  const { postId, userId } = req.params;
-  const post = await Post.findById(postId);
-  post.likes = post.likes.filter(like => like.toString() !== userId.toString());
-  await post.save();
-  res.status(200).json(post);
+  try {
+    const { postId, userId } = req.params;
+    const post = await Post.findById(postId).populate('author');
+    
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+    
+    post.likes = post.likes.filter(like => like.toString() !== userId);
+    await post.save();
+    
+    if (post.author._id.toString() !== userId) {
+      // Delete the like notification when unliking
+    }
+    
+    res.status(200).json(formatPost(post));
+  } catch (error) {
+    console.error('Error removing like:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
 };
 
 export const getPosts = async (req, res) => {

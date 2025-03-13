@@ -55,17 +55,27 @@ export const getUserProfile = async (req, res) => {
 };
 
 export const followUser = async (req, res) => {
-  const { id, userId } = req.params;
-  const user = await User.findById(id);
-  const userToFollow = await User.findById(userId);
+  const { id } = req.params;
+  const userId = req.user.id;
 
-  if(!user || !userToFollow) return res.status(404).json({ message: "No account found." });
+  if (id === userId) {
+    return res.status(400).json({ message: "You cannot follow yourself" });
+  }
+
+  const user = await User.findById(userId);
+  const userToFollow = await User.findById(id);
+
+  if (!user || !userToFollow) {
+    return res.status(404).json({ message: "User not found" });
+  }
 
   const isFollowing = user.following.includes(userToFollow._id);
 
   if(isFollowing){
     user.following = user.following.filter(id => id.toString() !== userToFollow._id.toString());
     userToFollow.followers = userToFollow.followers.filter(id => id.toString() !== user._id.toString());
+
+    // Delete the follow notification when unfollowing
   }
   else{
     user.following.push(userToFollow._id);

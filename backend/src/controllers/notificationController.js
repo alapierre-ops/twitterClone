@@ -7,7 +7,11 @@ const formatNotification = async (notification) => {
   let message = '';
   switch (notification.type) {
     case 'like':
-      message = 'liked your post';
+      if(notification.post) {
+        message = 'liked your post';
+      } else {
+        message = 'liked your comment';
+      }
       break;
     case 'comment':
       message = 'commented on your post';

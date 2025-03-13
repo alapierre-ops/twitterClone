@@ -94,10 +94,23 @@ export const getReposts = async (req, res) => {
 export const deleteRepost = async (req, res) => {
   try {
     const { postId, authorId } = req.params;
-    const repost = await Repost.findOneAndDelete({ post: postId, user: authorId });
-    res.status(200).json(repost.id);
+    const repost = await Repost.findOne({ post: postId, user: authorId });
+    
+    if (!repost) {
+      return res.status(404).json({ message: "Repost not found" });
+    }
+    
+    const originalPost = await Post.findById(repost.post);
+    
+    if (originalPost && originalPost.author.toString() !== repost.author.toString()) {
+      // Delete the repost notification
+    }
+    
+    await Repost.findByIdAndDelete(repost._id);
+    res.status(200).json({ message: "Repost deleted" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error deleting repost:', error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
