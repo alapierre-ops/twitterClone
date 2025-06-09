@@ -5,9 +5,9 @@ import { fetchPostById } from "../domains/posts/slice";
 import PostContent from "../domains/posts/components/PostOnCommentTab";
 import CommentList from "../domains/comments/components/CommentList";
 import Loading from "../components/Loading";
-import Stimulation from "../components/Stimulation";
 import authGuard from "../domains/auth/authGuard";
 import Alerts from "../domains/alerts/components/Alerts";
+import Layout from "../components/Layout";
 
 const Post = () => {
   const { id } = useParams<{ id: string }>();
@@ -57,9 +57,8 @@ const Post = () => {
   const postId = post.id;
 
   return (
-    <div className="flex justify-center">
-      <Stimulation>
-        <div className="w-2xl mx-auto p-4">
+    <Layout>
+        <div className="max-w-1200 mx-auto p-4">
           <Alerts />
           <button
             className="flex items-center space-x-2 text-blue-400 hover:text-blue-500 transition-colors duration-200 mb-6 bg-gray-900 px-4 py-2 rounded-full"
@@ -74,8 +73,7 @@ const Post = () => {
           <PostContent post={post} />
           {postId && <CommentList postId={postId} userId={userId} />}
         </div>
-      </Stimulation>
-    </div>
+    </Layout>
   );
 };
 

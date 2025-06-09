@@ -114,7 +114,7 @@ const PostItem = ({ post, userId }: PostItemProps) => {
   return (
     <>
       <li 
-        className="py-4 px-4 w-2xl hover:bg-gray-900 cursor-pointer transition duration-150 ease-in-out"
+        className="py-4 px-4 hover:bg-gray-900 cursor-pointer transition duration-150 ease-in-out"
         onClick={handlePostClick}
       >
         {post.type === 'repost' && (

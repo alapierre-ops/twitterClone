@@ -55,43 +55,46 @@ export const getUserProfile = async (req, res) => {
 };
 
 export const followUser = async (req, res) => {
-  const { id } = req.params;
-  const userId = req.user.id;
+  const { id, userId } = req.params;
 
   if (id === userId) {
     return res.status(400).json({ message: "You cannot follow yourself" });
   }
 
-  const user = await User.findById(userId);
-  const userToFollow = await User.findById(id);
+  try {
+    const user = await User.findById(userId);
+    const userToFollow = await User.findById(id);
 
-  if (!user || !userToFollow) {
-    return res.status(404).json({ message: "User not found" });
+    if (!user || !userToFollow) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const isFollowing = user.following.includes(userToFollow._id);
+
+    if (isFollowing) {
+      user.following = user.following.filter(id => id.toString() !== userToFollow._id.toString());
+      userToFollow.followers = userToFollow.followers.filter(id => id.toString() !== user._id.toString());
+
+    } else {
+      user.following.push(userToFollow._id);
+      userToFollow.followers.push(user._id);
+
+      const notification = new Notification({
+        recipient: userId,
+        sender: id,
+        type: 'follow'
+      });
+
+      await notification.save();
+    }
+
+    await user.save();
+    await userToFollow.save();
+
+    res.json(userToFollow);
+  } catch (error) {
+    res.status(500).json({ message: "An error occurred while processing the follow request." });
   }
-
-  const isFollowing = user.following.includes(userToFollow._id);
-
-  if(isFollowing){
-    user.following = user.following.filter(id => id.toString() !== userToFollow._id.toString());
-    userToFollow.followers = userToFollow.followers.filter(id => id.toString() !== user._id.toString());
-
-    // Delete the follow notification when unfollowing
-  }
-  else{
-    user.following.push(userToFollow._id);
-    userToFollow.followers.push(user._id);
-
-    const notification = new Notification({
-      recipient: userId,
-      sender: id,
-      type: 'follow'
-    });
-    await notification.save();
-  }
-  await user.save();
-  await userToFollow.save();
-
-  res.json(userToFollow);
 };
 
 export const getFollowingUsers = async (req, res) => {

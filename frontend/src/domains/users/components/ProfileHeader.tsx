@@ -33,7 +33,7 @@ const ProfileHeader = ({ activeTab, onTabChange }: ProfileHeaderProps) => {
 
   const handleFollowClick = () => {
     if(currentUserId) {
-      dispatch(followUserThunk({ id: currentUserId, userId: user._id }));
+      dispatch(followUserThunk({ id: user._id, userId: currentUserId }));
     }
   };
 
