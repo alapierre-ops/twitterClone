@@ -4,7 +4,6 @@ import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { useEffect, useState } from "react";
 import PostList from "../domains/posts/components/PostList";
 import { getUserByIdThunk } from "../domains/users/slice";
-import Stimulation from "../components/Stimulation";
 import { fetchPostsByUserId } from "../domains/posts/slice";
 import Loading from "../components/Loading";
 import ProfileHeader from "../domains/users/components/ProfileHeader";
@@ -43,7 +42,6 @@ function Profile() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <Stimulation>
         <div className="w-2xl mx-auto">
           <Alerts />
           <ProfileHeader activeTab={activeTab} onTabChange={handleTabChange} />
@@ -51,7 +49,6 @@ function Profile() {
             <PostList profileTab={activeTab} userId={id} />
           </div>
         </div>
-      </Stimulation>
     </div>
   );
 }

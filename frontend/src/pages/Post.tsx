@@ -5,7 +5,6 @@ import { fetchPostById } from "../domains/posts/slice";
 import PostContent from "../domains/posts/components/PostOnCommentTab";
 import CommentList from "../domains/comments/components/CommentList";
 import Loading from "../components/Loading";
-import Stimulation from "../components/Stimulation";
 import authGuard from "../domains/auth/authGuard";
 import Alerts from "../domains/alerts/components/Alerts";
 
@@ -58,7 +57,6 @@ const Post = () => {
 
   return (
     <div className="flex justify-center">
-      <Stimulation>
         <div className="w-2xl mx-auto p-4">
           <Alerts />
           <button
@@ -74,7 +72,6 @@ const Post = () => {
           <PostContent post={post} />
           {postId && <CommentList postId={postId} userId={userId} />}
         </div>
-      </Stimulation>
     </div>
   );
 };
