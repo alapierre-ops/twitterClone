@@ -6,24 +6,23 @@ import PostList from "../domains/posts/components/PostList";
 import PostTab from "../domains/posts/components/PostTab.tsx";
 import { fetchPosts } from "../domains/posts/slice.ts";
 import Alerts from "../domains/alerts/components/Alerts";
+import Layout from "../components/Layout";
 
 function Index() {
   const dispatch = useAppDispatch();
   const userId = useAppSelector((state) => state.auth.userId);
 
   useEffect(() => {
-    dispatch(fetchPosts('recent'));
-  }, []);
+    dispatch(fetchPosts("recent"));
+  }, [dispatch]);
 
   return (
-    <div className="flex justify-center">
-        <div className="w-2xl mx-auto z-10">
-          <Alerts />
-          <PostTab />
-          <PostForm userId={userId} />
-          <PostList />
-        </div>
-    </div>
+    <Layout>
+      <Alerts />
+      <PostTab />
+      <PostForm userId={userId} />
+      <PostList />
+    </Layout>
   );
 }
 

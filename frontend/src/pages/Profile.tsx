@@ -9,6 +9,7 @@ import Loading from "../components/Loading";
 import ProfileHeader from "../domains/users/components/ProfileHeader";
 import Alerts from "../domains/alerts/components/Alerts";
 import { showError } from "../domains/alerts/slice";
+import Layout from "../components/Layout";
 
 type ProfileTab = 'posts' | 'replies' | 'likes';
 
@@ -41,15 +42,15 @@ function Profile() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
-        <div className="w-2xl mx-auto">
+    <Layout>
+        <div className="max-w-1200 mx-auto">
           <Alerts />
           <ProfileHeader activeTab={activeTab} onTabChange={handleTabChange} />
           <div className="divide-y divide-gray-800">
             <PostList profileTab={activeTab} userId={id} />
           </div>
         </div>
-    </div>
+    </Layout>
   );
 }
 

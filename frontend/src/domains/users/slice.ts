@@ -68,10 +68,6 @@ const userSlice = createSlice({
         state.isLoading = false;
         state.error = action.error.message || 'Failed to fetch user';
       })
-      .addCase(followUserThunk.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
       .addCase(followUserThunk.fulfilled, (state, action) => {
         state.isLoading = false;
         if (state.user?._id === action.payload._id) {
@@ -92,10 +88,6 @@ const userSlice = createSlice({
         state.isLoading = false;
         state.error = action.error.message || 'Failed to follow user';
       })
-      .addCase(getFollowingUsersThunk.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
       .addCase(getFollowingUsersThunk.fulfilled, (state, action) => {
         state.isLoading = false;
         state.following = action.payload;
@@ -103,10 +95,6 @@ const userSlice = createSlice({
       .addCase(getFollowingUsersThunk.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message || 'Failed to fetch following users';
-      })
-      .addCase(getFollowersThunk.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
       })
       .addCase(getFollowersThunk.fulfilled, (state, action) => {
         state.isLoading = false;
