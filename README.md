@@ -1,180 +1,154 @@
-## Twitter Clone – Backend & Frontend
+# YNot — Twitter/X clone
 
-Projet full‑stack de type **clone de Twitter / X**, composé :
-- **Backend** : API REST Node.js/Express avec MongoDB/Mongoose (authentification JWT, gestion des posts, commentaires, reposts, likes, follow, notifications…)
-- **Frontend** : SPA **React 19 + TypeScript** avec **Vite**, **Redux Toolkit**, **React Router**, **Axios**, **TailwindCSS 4** et quelques composants **MUI**.
+Full-stack Twitter/X clone (school sprint, one week) built with **React 19 + TypeScript**, **Redux Toolkit**, **Express**, **MongoDB**, **Socket.io**, and **Cloudinary**.
 
-Ce dépôt est un **monorepo** avec deux dossiers principaux : `backend/` et `frontend/`.
+**Live:** https://ynot.axel-lapierre.dev
 
----
+## Features
 
-## Fonctionnalités principales
+- JWT authentication (register, login, session verify)
+- Posts, likes, comments, reposts
+- Follow / unfollow with notifications
+- Real-time notifications via WebSocket
+- User and post search
+- Avatar upload (Cloudinary)
+- Responsive layout with mobile bottom navigation
+- Dark theme UI
 
-- **Authentification & profils**
-  - Inscription / connexion (`/api/users`)
-  - Authentification par **JWT**
-  - Récupération et mise à jour du profil (username, bio, avatar…)
-  - Vérification de session côté frontend via un guard d’authentification
+## Architecture
 
-- **Réseau social (type Twitter)**
-  - Création / édition / suppression de **posts**
-  - **Likes** de posts, liste des posts aimés
-  - **Commentaires** sur les posts
-  - **Reposts** / retweets
-  - Fil d’actualité :
-    - **Flux global**
-    - **Flux “following”** (posts des personnes suivies)
-    - **Onglet “trending”** (posts les plus likés sur les derniers jours)
-
-- **Suivi / Followers**
-  - Follow / unfollow d’utilisateurs
-  - Liste des followers et des comptes suivis
-
-- **Notifications**
-  - Notifications automatiques pour certains évènements (like, follow, etc.)
-  - Conteneur de notifications dans l’app React (`NotificationsContainer`)
-
----
-
-## Stack technique
-
-- **Backend**
-  - Node.js / Express
-  - MongoDB avec Mongoose
-  - Authentification via **JWT**
-  - Sécurité basique avec **bcryptjs** pour les mots de passe
-  - CORS, JSON body parsing
-
-- **Frontend**
-  - React 19 + TypeScript
-  - Vite
-  - Redux Toolkit (`store` global dans `src/app/store.ts`)
-  - React Router (routing dans `src/app/routes.tsx`)
-  - Axios pour les appels API (`src/api/axiosConfig.ts`)
-  - TailwindCSS 4 + quelques composants Material UI
-
----
-
-## Structure du projet
-
-```text
-.
-├── backend/
-│   ├── src/
-│   │   ├── config/        # Connexion MongoDB (db.js)
-│   │   ├── controllers/   # Logique métier (users, posts, comments, reposts, notifications)
-│   │   ├── middlewares/   # Middleware d’auth (JWT)
-│   │   ├── models/        # Schémas Mongoose
-│   │   ├── routes/        # Routes Express /api/*
-│   │   └── server.js      # Bootstrap de l’API
-│   ├── seeders/           # Données de seed (users, posts, comments…)
-│   └── package.json
-│
-└── frontend/
-    ├── src/
-    │   ├── app/           # Store Redux, hooks, définition des routes
-    │   ├── components/    # Layout global, modales génériques, loading…
-    │   ├── domains/       # Dossiers par “domaine” (auth, posts, users, comments, reposts, notifications, alerts)
-    │   ├── pages/         # Pages principales (Index, Login, Post, Profile…)
-    │   ├── api/           # Config axios
-    │   └── utils/         # Helpers et formatteurs
-    ├── index.html
-    └── package.json
+```
+Frontend (ynot.axel-lapierre.dev)  →  REST API + WebSocket
+                                            ↓
+                                      MongoDB Atlas
+                                            ↓
+                                      Cloudinary (avatars)
 ```
 
----
+## Local development
 
-## Prérequis
+### Prerequisites
 
-- **Node.js** (version récente LTS recommandée)
-- **npm** ou **pnpm** / **yarn**
-- Une instance **MongoDB** (locale ou distante)
+- Node.js 20+
+- MongoDB (local or Atlas)
 
----
-
-## Installation
-
-Cloner le dépôt puis installer les dépendances des deux parties :
-
-```bash
-git clone git@github.com:alapierre-ops/twitterClone.git twitterClone
-cd twitterClone
-
-cd backend
-npm install
-
-cd ../frontend
-npm install
-```
-
----
-
-## Configuration des variables d’environnement (backend)
-
-Dans `backend/`, créer un fichier `.env` :
+### Backend
 
 ```bash
 cd backend
 cp .env.example .env
-```
-
----
-
-## Lancer l’API backend
-
-Depuis le dossier `backend/` :
-
-```bash
+npm install
 npm run dev
 ```
 
-L’API tourne par défaut sur `http://localhost:5000` et expose les routes :
-- `GET /api/posts`, `POST /api/posts`, etc.
-- `POST /api/users/register`, `POST /api/users/login`, etc.
-- `GET /api/comments/...`, `GET /api/reposts/...`, `GET /api/notifications/...`  
-(cf. contenu du dossier `routes/` pour le détail complet).
+Backend runs at `http://localhost:5000`.
 
-### Seed de la base
+**Environment variables** (`backend/.env`):
 
-Il existe un script de seed pour remplir la base avec des **utilisateurs**, **posts** et **commentaires** de test :
+| Variable | Description |
+|----------|-------------|
+| `MONGO_URI` | MongoDB connection string |
+| `JWT_SECRET` | Strong random secret |
+| `PORT` | API port (default 5000) |
+| `FRONTEND_URL` | Frontend origin for CORS |
+| `CLOUDINARY_*` | Optional, for avatar upload |
+
+Seed demo data:
 
 ```bash
-cd backend
-
-# Insérer les données
-npm run seed
-
-# Détruire les données
-npm run seed:destroy
+npm run seed        # insert
+npm run seed:destroy  # remove
 ```
 
----
-
-## Lancer le frontend
-
-Depuis le dossier `frontend/` :
+### Frontend
 
 ```bash
 cd frontend
-
+cp .env.example .env
+npm install
 npm run dev
 ```
 
-Par défaut, Vite sert l’app sur `http://localhost:5173`.  
-Le frontend communique avec l’API via Axios (baseURL configurée dans `src/api/axiosConfig.ts`).
+Frontend runs at `http://localhost:5173`.
 
----
+**Environment variables** (`frontend/.env`):
 
-## Architecture frontend (aperçu)
+| Variable | Description |
+|----------|-------------|
+| `VITE_API_URL` | API base URL (e.g. `http://localhost:5000/api`) |
 
-- **Routing** : défini dans `src/app/routes.tsx`, avec des pages comme :
-  - `Index` (feed principal)
-  - `Login`
-  - `Post` (détail d’un post)
-  - `Profile`
-- **Store global** : `src/app/store.ts` assemble les slices :
-  - `auth`, `posts`, `userState`, `alerts`, `comments`, `reposts`, `notifications`
-- **UI & UX**
-  - Layout principal dans `src/components/Layout.tsx`
-  - Modales génériques (`Modal.tsx`, `LoginModal.tsx`, `SignupModal.tsx`, etc.)
-  - Gestion globale des notifications à l’écran (`NotificationsContainer.tsx`)
+## Tests
+
+```bash
+cd backend && npm test
+cd frontend && npm test
+```
+
+## Deployment
+
+### 1. MongoDB Atlas
+
+1. Create a free M0 cluster at [mongodb.com/atlas](https://www.mongodb.com/atlas)
+2. Add a database user and allow network access (`0.0.0.0/0` for Render)
+3. Copy the connection string into `MONGO_URI`
+
+### 2. Backend (Render)
+
+1. Push this repo to GitHub
+2. Create a new **Web Service** on [render.com](https://render.com)
+3. Use `render.yaml` or configure manually:
+   - Root directory: `backend`
+   - Build: `npm install`
+   - Start: `npm start`
+4. Set environment variables (see backend `.env.example`)
+5. Set `FRONTEND_URL` to your Netlify URL once deployed
+
+Alternatively use **Railway** with the same env vars.
+
+### 3. Cloudinary (avatars)
+
+1. Create a free account at [cloudinary.com](https://cloudinary.com)
+2. Add `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` to backend env
+
+### 4. Frontend (Netlify)
+
+1. Connect your GitHub repo on [netlify.com](https://www.netlify.com)
+2. The repo includes `netlify.toml` with build settings
+3. Set environment variable:
+   - `VITE_API_URL` = `https://your-api.onrender.com/api`
+4. Add a custom subdomain (e.g. `twitter.yourportfolio.com`) in Netlify DNS
+
+### Post-deploy checklist
+
+- [ ] Run `npm run seed` against Atlas (from local machine with Atlas URI)
+- [ ] Verify login, posts, search, notifications, avatar upload
+- [ ] Confirm WebSocket connects (check browser devtools → Network → WS)
+- [ ] Update `FRONTEND_URL` on backend if you change the Netlify domain
+
+## Project structure
+
+```
+backend/src/
+  controllers/   # Route handlers
+  middlewares/   # Auth, validation, errors
+  models/        # Mongoose schemas
+  routes/        # Express routers
+  utils/         # Socket helpers
+
+frontend/src/
+  domains/       # Feature slices (auth, posts, users, etc.)
+  pages/         # Route pages
+  components/    # Shared UI
+```
+
+## Security notes
+
+- All mutations derive the acting user from JWT (no IDOR)
+- Rate limiting on auth routes
+- Input validation with Zod
+- CORS restricted to `FRONTEND_URL`
+- Helmet security headers
+
+## License
+
+MIT
