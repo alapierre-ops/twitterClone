@@ -101,7 +101,7 @@ cd frontend && npm test
    - Build: `npm install`
    - Start: `npm start`
 4. Set environment variables (see backend `.env.example`)
-5. Set `FRONTEND_URL` to your Netlify URL once deployed
+5. Set `FRONTEND_URL` to `https://ynot.axel-lapierre.dev` once the frontend is live
 
 Alternatively use **Railway** with the same env vars.
 
@@ -110,20 +110,18 @@ Alternatively use **Railway** with the same env vars.
 1. Create a free account at [cloudinary.com](https://cloudinary.com)
 2. Add `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` to backend env
 
-### 4. Frontend (Netlify)
+### 4. Frontend
 
-1. Connect your GitHub repo on [netlify.com](https://www.netlify.com)
-2. The repo includes `netlify.toml` with build settings
-3. Set environment variable:
-   - `VITE_API_URL` = `https://your-api.onrender.com/api`
-4. Add a custom subdomain (e.g. `twitter.yourportfolio.com`) in Netlify DNS
+1. Deploy the Vite app (Netlify or any static host; `netlify.toml` is in the repo)
+2. Set `VITE_API_URL` to your API base (e.g. `https://your-api.onrender.com/api`)
+3. Point `ynot.axel-lapierre.dev` at that deploy
 
 ### Post-deploy checklist
 
 - [ ] Run `npm run seed` against Atlas (from local machine with Atlas URI)
 - [ ] Verify login, posts, search, notifications, avatar upload
-- [ ] Confirm WebSocket connects (check browser devtools → Network → WS)
-- [ ] Update `FRONTEND_URL` on backend if you change the Netlify domain
+- [ ] Confirm WebSocket connects (check browser DevTools → Network → WS)
+- [ ] Keep `FRONTEND_URL` on the backend in sync with the live frontend origin
 
 ## Project structure
 
